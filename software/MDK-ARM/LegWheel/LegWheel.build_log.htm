@@ -1,0 +1,90 @@
+<html>
+<body>
+<pre>
+<h1>�Vision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: ��Vision V5.36.0.0
+Copyright (C) 2021 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: B zhuhongyuZHY2020@outlook.com, B, LIC=9WSKC-7HUJV-Z9FG9-4JR0F-J6CJJ-TXQ6C
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Plus  Version: 5.36.0.0
+Toolchain Path:  D:\keil5 MDK\ARM\ARMCLANG\Bin
+C Compiler:      ArmClang.exe V6.16
+Assembler:       Armasm.exe V6.16
+Linker/Locator:  ArmLink.exe V6.16
+Library Manager: ArmAr.exe V6.16
+Hex Converter:   FromElf.exe V6.16
+CPU DLL:         SARMCM3.DLL V5.36.0.0
+Dialog DLL:      DCM.DLL V1.17.3.0
+Target DLL:      CMSIS_AGDI.dll V1.33.0.0
+Dialog DLL:      TCM.DLL V1.53.0.0
+ 
+<h2>Project:</h2>
+D:\RM-electro-control\wheelleg\chuanlian\Board_chassis_DM_ZUIJIN)\MDK-ARM\LegWheel.uvprojx
+Project File Date:  05/22/2025
+
+<h2>Output:</h2>
+*** Using Compiler 'V6.16', folder: 'D:\keil5 MDK\ARM\ARMCLANG\Bin'
+Build target 'LegWheel'
+compiling vmc.cpp...
+compiling freertos.c...
+compiling pid.cpp...
+../Bsp/CAN/BSP_fdcan.c(16): warning: In file included from...
+../Applications\Chassis.h(9): warning: In file included from...
+../Devices/Unitree\unitree.h(45): warning: anonymous non-C-compatible type given name for linkage purposes by typedef declaration; add a tag name here [-Wnon-c-typedef-for-linkage]
+typedef struct{      // 以 4个字节一组排列 ，不然编译器会凑整
+              ^
+               MasterComdV3
+../Devices/Unitree\unitree.h(48): note: type is not C-compatible due to this default member initializer
+  uint8_t ModifyBit=0xFF;  
+                    ^~~~
+../Devices/Unitree\unitree.h(64): note: type is given name 'MasterComdV3' for linkage purposes by this typedef declaration
+} MasterComdV3; 
+  ^
+1 warning generated.
+compiling BSP_fdcan.c...
+../Applications/Chassis.cpp(1): warning: In file included from...
+../Applications/Chassis.h(9): warning: In file included from...
+../Devices/Unitree\unitree.h(45): warning: anonymous non-C-compatible type given name for linkage purposes by typedef declaration; add a tag name here [-Wnon-c-typedef-for-linkage]
+typedef struct{      // 以 4个字节一组排列 ，不然编译器会凑整
+              ^
+               MasterComdV3
+../Devices/Unitree\unitree.h(48): note: type is not C-compatible due to this default member initializer
+  uint8_t ModifyBit=0xFF;  
+                    ^~~~
+../Devices/Unitree\unitree.h(64): note: type is given name 'MasterComdV3' for linkage purposes by this typedef declaration
+} MasterComdV3; 
+  ^
+1 warning generated.
+compiling Chassis.cpp...
+linking...
+Program Size: Code=97352 RO-data=5636 RW-data=68 ZI-data=157820  
+FromELF: creating hex file...
+"LegWheel\LegWheel.axf" - 0 Error(s), 2 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                http://www.keil.com/pack/ARM.CMSIS.5.8.0.pack
+                ARM.CMSIS.5.8.0
+                CMSIS (Common Microcontroller Software Interface Standard)
+   * Component: CORE Version: 5.5.0
+
+Package Vendor: Keil
+                https://www.keil.com/pack/Keil.STM32H7xx_DFP.4.0.0.pack
+                Keil.STM32H7xx_DFP.4.0.0
+                STMicroelectronics STM32H7 Series Device Support
+
+<h2>Collection of Component include folders:</h2>
+  .\RTE\_LegWheel
+  D:\keil5 MDK\ARM\CMSIS\5.8.0\CMSIS\Core\Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE:5.5.0
+      Include file:  CMSIS\Core\Include\tz_context.h
+Build Time Elapsed:  00:00:02
+</pre>
+</body>
+</html>
