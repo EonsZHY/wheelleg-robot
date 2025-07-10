@@ -209,5 +209,11 @@ for k=1:40
     K_cons(k,:)=mdl.Coefficients.Estimate';                                                        
 end
 
-%输出m函数
-matlabFunction(K_cons,'File','lqr_k');
+%% 提取k_cons的每一行作为向量
+for i = 1:4
+    for j = 1:10
+        idx = (i-1)*10 + j; %对应于kij在k_cons中的行号
+        name = sprintf('a%d%d',i,j);  %构造aij向量,对应于kij的六个拟合系数
+        eval([name ' = K_cons(idx, :);']);
+    end
+end
