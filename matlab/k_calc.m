@@ -206,7 +206,10 @@ X = [x1, x2, x1sq, x2sq, x1x2];
 for k=1:40
     mdl = fitlm(X, K(:,k));
     disp(mdl.Coefficients.Estimate');
-    K_cons(k,:)=mdl.Coefficients.Estimate';                                                        
+    K_cons(k,:)=mdl.Coefficients.Estimate'; 
+    save('K_cons.mat', 'K_cons');
+    load('K_cons.mat');
+
 end
 
 %% 提取k_cons的每一行作为向量
