@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "bsp_fdcan.h": "c",
+        "fdcan.h": "c",
+        "chassis.h": "c",
+        "dm_8009p.h": "c",
+        "m3508.h": "c"
+    }
+}
