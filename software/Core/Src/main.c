@@ -113,6 +113,8 @@ int main(void)
   MX_UART7_Init();
   MX_TIM3_Init();
   MX_FDCAN3_Init();
+  MX_USART6_UART_Init();
+  MX_USART10_UART_Init();
   /* USER CODE BEGIN 2 */
 	DWT_Init(180);
 		

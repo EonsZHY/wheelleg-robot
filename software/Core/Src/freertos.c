@@ -31,11 +31,13 @@
 #include "bsp_dwt.h"
 #include "Saber_C3.h"
 #include "board_comm.h"
+#include "vofa.h"
 //#include "BMI088driver.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+  float vofa_data[3] = {0};
 
 /* USER CODE END PTD */
 
@@ -88,6 +90,14 @@ const osThreadAttr_t BoardcommTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityRealtime,
 };
+/* Definitions for VofaTask */
+osThreadId_t VofaTaskHandle;
+const osThreadAttr_t VofaTask_attributes = {
+  .name = "VofaTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,  // 低优先级
+};
+
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -99,6 +109,7 @@ void StartChassisTask(void *argument);
 void StartLegMotorTask(void *argument);
 void StartIMUTask(void *argument);
 void StartBoardcommTask(void *argument);
+void StartVofaTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -143,6 +154,8 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of BoardcommTask */
   BoardcommTaskHandle = osThreadNew(StartBoardcommTask, NULL, &BoardcommTask_attributes);
+  /* creation of VofaTask */
+  VofaTaskHandle = osThreadNew(StartVofaTask, NULL, &VofaTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -269,8 +282,32 @@ void StartBoardcommTask(void *argument)
 		board_dt = DWT_GetTimeline_ms() - board_start;
     osDelay(1);
   }
-  /* USER CODE END StartBoardcommTask */
-}
+  }
+  /* USER CODE END StartVofaTask */
+void StartVofaTask(void *argument)
+{
+  /* USER CODE BEGIN StartVofaTask */
+
+  float f1 = 11.4, f2 = 51.4, f3 = 0;
+  
+  /* Infinite loop */
+  for(;;)
+  {
+	vofa_data[0] = f1;
+	vofa_data[1] = f2;
+	vofa_data[2] = f3;
+    if(huart10.hdmatx->State != HAL_DMA_STATE_BUSY)
+    {
+    // 2. 通过 DMA 发送（非阻塞）
+    Vofa_JustFloat(vofa_data, 3);
+    }
+    (f1 > 20) ? (f1 = 11.4) : (f1 += 0.5);
+    (f2 < 0) ? (f2 = 51.4) : (f2 -= 0.5);
+    f3 = f1 + f2;
+	osDelay(10);
+  }
+  }
+
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
