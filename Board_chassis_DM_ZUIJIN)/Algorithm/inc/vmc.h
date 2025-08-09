@@ -69,7 +69,7 @@ class Vmc {
   float coord_[6];  // xb yb xc yc xd yd
   float last_w_theta_, last_v_l0_;
   float phi2_, phi3_;
-  float a0_, b0_, bd_;
+  float a0_, b0_, bd_, c0_;
   float j_[4], inv_j_[4];
 };
 /* Exported variables --------------------------------------------------------*/

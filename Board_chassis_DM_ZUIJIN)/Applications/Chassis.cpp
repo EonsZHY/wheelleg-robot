@@ -51,8 +51,8 @@ void balance_Chassis::MotorInit()
   //设置电机零点位置，只在需要重新设置零点时使用
   // lf_joint_.Save_Pos_Zero();
   // lb_joint_.Save_Pos_Zero();
-  // rf_joint_.Save_Pos_Zero();
-  // rb_joint_.Save_Pos_Zero();
+  //  rf_joint_.Save_Pos_Zero();
+//    rb_joint_.Save_Pos_Zero();
 
 
 }
@@ -183,6 +183,7 @@ void balance_Chassis::TorControl() {
 //	{
 //		StopMotor();
 //	}
+
 	SetMotorTor();
 }
 
@@ -257,10 +258,14 @@ void balance_Chassis::Controller() {
 // 电机力矩输入模式
 void balance_Chassis::SetMotorTor() {
 //  lf_joint_.SetMotorT(left_leg_.GetT2());
-	lf_joint_.SetMotorT(1);  // 测试用
-  lb_joint_.SetMotorT(left_leg_.GetT1());
-  rf_joint_.SetMotorT(-right_leg_.GetT2());
-  rb_joint_.SetMotorT(-right_leg_.GetT1());
+// 	lf_joint_.SetMotorT(1);  // 测试用
+//   lb_joint_.SetMotorT(left_leg_.GetT1());
+//   // rf_joint_.SetMotorT(-right_leg_.GetT2());
+//   rf_joint_.SetMotorT(1);
+// //  rb_joint_.SetMotorT(-right_leg_.GetT1());
+// 	rb_joint_.SetMotorT(-1);
+  rf_joint_.SetMotorT(0);
+  rb_joint_.SetMotorT(0);
 	M3508_Array[0].targetTorque=l_wheel_T_;
 	M3508_Array[1].targetTorque=-r_wheel_T_;
 	M3508_FUN.M3508_SetTor();

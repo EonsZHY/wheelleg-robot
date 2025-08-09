@@ -24,8 +24,8 @@
 #define KP_MAX 500.0f
 #define KD_MIN 0.0f
 #define KD_MAX 5.0f
-#define T_MIN -10.0f
-#define T_MAX 10.0f
+#define T_MIN -15.0f
+#define T_MAX 15.0f
 #define I_MAX 30.0f 
 #define DM_8009P_TXID_START 0x01
 #define DM_8009P_TXID_END 0x04
@@ -101,6 +101,7 @@ public:
     void Save_Pos_Zero();
     void SetMotorT(float _T);
     void SetMotorPos(float _Pos);
+    void TIM_Alive_PeriodElapsedCallback();
     Enum_Motor_DM_Status Get_Status();
     void DM_8009P_getInfo(FDCan_Export_Data_t RxMessage);
     Motor_rev DM_Rev;
@@ -120,6 +121,10 @@ private:
     uint8_t InfoUpdateFlag;   //信息读取更新标志
     uint16_t InfoUpdateFrame; //帧率
     uint8_t OffLineFlag;      //设备离线标志
+     // 当前时刻的电机接收flag
+    uint32_t Flag = 0;
+    // 前一时刻的电机接收flag
+    uint32_t Pre_Flag = 0;
 };
 
 #endif

@@ -48,15 +48,7 @@ chassis.SpeedEstInit();
  */
 void DM_MotorTask()
 {
-	//使能达妙电机
-	chassis.lf_joint_.Enable();
-	DWT_Delay(0.001f);
-	chassis.rf_joint_.Enable();
-	DWT_Delay(0.001f);
-	chassis.lb_joint_.Enable();
-	DWT_Delay(0.001f);
-	chassis.rb_joint_.Enable();
-	DWT_Delay(0.001f);
+
 	chassis.lf_joint_.DM_8009P_Ctrl();
 	DWT_Delay(0.001f);
 	chassis.rf_joint_.DM_8009P_Ctrl();

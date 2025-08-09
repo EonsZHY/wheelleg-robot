@@ -6,7 +6,7 @@ x_B = l1*cos(phi1);
 y_B = l1*sin(phi1);
 x_C = l5/l4*(x_B + l2*cos(phi2));
 y_C = l5/l4*(y_B + l2*sin(phi2));
-x_D = l4*cos(phi4);
+x_D = -l4*cos(phi4);
 y_D = l4*sin(phi4);
 
 % % 定义 phi0 和 L0（不展开）
@@ -33,7 +33,7 @@ x_dot = [x_dot_C; y_dot_C];
 q_dot = [phi_dot_1; phi_dot_4];
 
 % 计算雅可比矩阵 J（不展开 L0 和 phi0）
-J = jacobian(x_dot, q_dot);
+J = simplify(jacobian(x_dot, q_dot));
 
 % 定义旋转矩阵 R 和变换矩阵 M（直接使用 phi0 和 L0 的符号形式）
 R = [cos(phi0 - pi/2), -sin(phi0 - pi/2);

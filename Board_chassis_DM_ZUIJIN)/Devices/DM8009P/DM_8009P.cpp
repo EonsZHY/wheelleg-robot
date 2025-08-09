@@ -132,6 +132,7 @@ void Class_Motor_DM_8009P::Init(FDCAN_HandleTypeDef *hfdcan,uint8_t _CAN_Rx_ID,u
     {
         return;
     }
+    Flag++;
     DM_Rev.id = RxMessage.fdcan_RxHeader.Identifier;
     DM_Rev.last_pos = DM_Rev.Now_pos;
     DM_Rev.state = RxMessage.FDCANx_Export_RxMessage[0]>>4;
@@ -202,6 +203,7 @@ void Class_Motor_DM_8009P::Init(FDCAN_HandleTypeDef *hfdcan,uint8_t _CAN_Rx_ID,u
  */
 void Class_Motor_DM_8009P::DM_8009P_Ctrl()
 {
+    TIM_Alive_PeriodElapsedCallback();
     uint8_t data[8];
     uint16_t pos_tmp,vel_tmp,kp_tmp,kd_tmp,tor_tmp;
     float motor_pos = DM_Mit.target_pos;
@@ -281,4 +283,25 @@ float Class_Motor_DM_8009P::GetSpeed()
 float Class_Motor_DM_8009P::GetTor()
 {
     return(DM_Rev.Now_torq);
+}
+
+//定时检测达妙电机是否存活
+void Class_Motor_DM_8009P::TIM_Alive_PeriodElapsedCallback()
+{
+        //判断该时间段内是否接收过电机数据
+    if (Flag == Pre_Flag)
+    {
+        //电机断开连接
+        Status =  Motor_DM_Status_DISABLE;
+    }
+    else
+    {
+        //电机保持连接
+        Status = Motor_DM_Status_ENABLE;
+    }
+    Pre_Flag = Flag;
+    if(Status==Motor_DM_Status_DISABLE)
+    {
+        Enable();
+    }
 }
