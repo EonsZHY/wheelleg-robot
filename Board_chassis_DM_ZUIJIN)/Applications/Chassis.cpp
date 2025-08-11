@@ -9,7 +9,7 @@
 const float k_gravity_comp =5.96 * 9.8f;
 const float k_wheel_radius=0.091;
 const float k_phi1_bias =0.9124f + 3.1415f;
-const float k_phi4_bias = -0.9124;
+const float k_phi4_bias = 3.1415f;
 
 const float k_lf_joint_bias =0.4832;
 const float k_lb_joint_bias =6.0972;
@@ -21,6 +21,8 @@ const float k_jump_time = 0.1f;
 const float k_retract_force = -100.0f;
 const float k_retract_time = 0.15f;                                                                 
 
+const float leg_max = 0.4057;
+const float leg_min = 0.2226;
 
 static float target_yaw;
 
@@ -97,22 +99,22 @@ void balance_Chassis::SpeedEstInit() {
  * @param
  */
 void balance_Chassis::LegCalc() {
-  left_leg_.SetBodyData(INS.Pitch * DEGREE_2_RAD, INS.MotionAccel_n[2]);
-  right_leg_.SetBodyData(INS.Pitch * DEGREE_2_RAD, INS.MotionAccel_n[2]);
-  left_leg_.SetLegData(lb_joint_.GetAngle() + k_phi1_bias, lb_joint_.GetSpeed(),
-                       lf_joint_.GetAngle() + k_phi4_bias, lf_joint_.GetSpeed(),
-                       lb_joint_.GetTor(), lf_joint_.GetTor());
+  // left_leg_.SetBodyData(INS.Pitch * DEGREE_2_RAD, INS.MotionAccel_n[2]);
+  // right_leg_.SetBodyData(INS.Pitch * DEGREE_2_RAD, INS.MotionAccel_n[2]);
+  // left_leg_.SetLegData(lb_joint_.GetAngle() + k_phi1_bias, lb_joint_.GetSpeed(),
+  //                      lf_joint_.GetAngle() + k_phi4_bias, lf_joint_.GetSpeed(),
+  //                      lb_joint_.GetTor(), lf_joint_.GetTor());
   right_leg_.SetLegData(
-      -rb_joint_.GetAngle() + k_phi1_bias, -rb_joint_.GetSpeed(),
+      -rb_joint_.GetAngle() , -rb_joint_.GetSpeed(),
       -rf_joint_.GetAngle() + k_phi4_bias, -rf_joint_.GetSpeed(),
       -rb_joint_.GetTor(), -rf_joint_.GetTor());
 
-  left_leg_.LegCalc();
+  // left_leg_.LegCalc();
   right_leg_.LegCalc();
-  left_leg_.Jacobian();
+  // left_leg_.Jacobian();
   right_leg_.Jacobian();
-  left_leg_.LegForceCalc();
-  right_leg_.LegForceCalc();
+  // left_leg_.LegForceCalc();
+  // right_leg_.LegForceCalc();
 }
 
 /**
@@ -196,18 +198,20 @@ void balance_Chassis::TorControl() {
 void balance_Chassis::LegLenCalc() {
   left_leg_len_.SetMeasure(left_leg_.GetLegLen());
   right_leg_len_.SetMeasure(right_leg_.GetLegLen());
-	roll_comp_.SetRef(0);
-  roll_comp_.SetMeasure(INS.Roll * DEGREE_2_RAD);
-if (left_leg_.GetForceNormal() < 15.0f &&right_leg_.GetForceNormal() < 15.0f)
-{
-	 left_leg_F_ = left_leg_len_.Calculate() + k_gravity_comp ;
-	right_leg_F_ = right_leg_len_.Calculate() + k_gravity_comp ;
-}
-else
-{
-  left_leg_F_ = left_leg_len_.Calculate() + k_gravity_comp +roll_comp_.Calculate();
-  right_leg_F_ = right_leg_len_.Calculate() + k_gravity_comp - roll_comp_.Calculate();
-}
+	// roll_comp_.SetRef(0);
+  // roll_comp_.SetMeasure(INS.Roll * DEGREE_2_RAD);
+// // if (left_leg_.GetForceNormal() < 15.0f &&right_leg_.GetForceNormal() < 15.0f)
+// // {
+// // 	 left_leg_F_ = left_leg_len_.Calculate() + k_gravity_comp ;
+// // 	right_leg_F_ = right_leg_len_.Calculate() + k_gravity_comp ;
+// // }
+// else
+// {
+  //  left_leg_F_ = left_leg_len_.Calculate() + k_gravity_comp +roll_comp_.Calculate();
+//   right_leg_F_ = right_leg_len_.Calculate() + k_gravity_comp - roll_comp_.Calculate();
+// }
+  left_leg_F_ = left_leg_len_.Calculate();
+  right_leg_F_ = right_leg_len_.Calculate();
 }
 
 
@@ -238,9 +242,9 @@ void balance_Chassis::SynthesizeMotion() {
 void balance_Chassis::Controller() {
   SetState();
   LegCalc();
-  SpeedCalc();
-  LQRCalc();
-  SynthesizeMotion();
+  // SpeedCalc();
+  // LQRCalc();
+  // SynthesizeMotion();
   if (jump_state_ == true)
     Jump();
   else
@@ -258,14 +262,12 @@ void balance_Chassis::Controller() {
 // 电机力矩输入模式
 void balance_Chassis::SetMotorTor() {
 //  lf_joint_.SetMotorT(left_leg_.GetT2());
-// 	lf_joint_.SetMotorT(1);  // 测试用
 //   lb_joint_.SetMotorT(left_leg_.GetT1());
-//   // rf_joint_.SetMotorT(-right_leg_.GetT2());
-//   rf_joint_.SetMotorT(1);
-// //  rb_joint_.SetMotorT(-right_leg_.GetT1());
-// 	rb_joint_.SetMotorT(-1);
-  rf_joint_.SetMotorT(0);
-  rb_joint_.SetMotorT(0);
+  rf_joint_.SetMotorT(-right_leg_.GetT2());
+  rb_joint_.SetMotorT(-right_leg_.GetT1());
+  // rf_joint_.SetMotorT(0);
+  // rb_joint_.SetMotorT(0);
+  
 	M3508_Array[0].targetTorque=l_wheel_T_;
 	M3508_Array[1].targetTorque=-r_wheel_T_;
 	M3508_FUN.M3508_SetTor();
@@ -296,7 +298,7 @@ void balance_Chassis::StopMotor() {
  * @param
  */
 void balance_Chassis::SetLegLen() {
-target_len_=(float)(board_comm.rece_.len/660.0*0.06)+0.16;
+target_len_=(float)(board_comm.rece_.len/660.0*0.1)+0.31415;
 left_leg_len_.SetRef(target_len_);
 right_leg_len_.SetRef(target_len_);
 
@@ -360,8 +362,9 @@ M6020s_Yaw.outCurrent = Position_PID(&M6020s_Yaw.velocity_PID, M6020s_Yaw.realSp
  * @param
  */
 void balance_Chassis::SetSpd() {
-target_speed_=(float)(board_comm.rece_.speed/660.0)*SPEED_MAX;
-target_w_rotation_=(float)(board_comm.rece_.w_speed/1320.0)*	W_SPEED_MAX;
+// target_speed_=(float)(board_comm.rece_.speed/660.0)*SPEED_MAX;
+// target_w_rotation_=(float)(board_comm.rece_.w_speed/1320.0)*	W_SPEED_MAX;
+right_leg_T_ = (float)(board_comm.rece_.speed/660)*2;
 target_dist_=0;
 target_rotation_=0;
 }
@@ -376,8 +379,8 @@ void balance_Chassis::SetState() {
   controller_dt_ = DWT_GetDeltaT(&dwt_cnt_controller_);
 
   SetLegLen();
-	SetFollow();
-	SetSpd();
+	//  SetFollow();
+	 SetSpd();
 	if(jump_cnt==0&&board_comm.rece_.jump_flag==1)
 	{
 		jump_state_=true;

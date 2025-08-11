@@ -37,7 +37,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-  float vofa_data[3] = {0};
+  
 
 /* USER CODE END PTD */
 
@@ -287,7 +287,7 @@ void StartBoardcommTask(void *argument)
 void StartVofaTask(void *argument)
 {
   /* USER CODE BEGIN StartVofaTask */
-
+  float vofa_data[3] = {0};
   float f1 = 11.4, f2 = 51.4, f3 = 0;
   
   /* Infinite loop */

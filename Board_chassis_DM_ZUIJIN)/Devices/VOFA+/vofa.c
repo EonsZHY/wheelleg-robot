@@ -16,7 +16,7 @@ void Vofa_FireWater(const char *format, ...)
     va_end(args);
 }
 
-// 输入个数和数组地址
+// 输入个数和数组地址s
 void Vofa_JustFloat(float *_data, uint8_t _num) {
     memcpy(vofaTxBuffer, _data, _num * 4);
     uint8_t temp_end[4] = {0x00, 0x00, 0x80, 0x7F};
