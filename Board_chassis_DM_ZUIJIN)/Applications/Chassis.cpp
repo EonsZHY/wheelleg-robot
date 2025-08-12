@@ -242,8 +242,8 @@ void balance_Chassis::SynthesizeMotion() {
 void balance_Chassis::Controller() {
   SetState();
   LegCalc();
-  // SpeedCalc();
-  // LQRCalc();
+   SpeedCalc();
+   LQRCalc();
   // SynthesizeMotion();
   if (jump_state_ == true)
     Jump();

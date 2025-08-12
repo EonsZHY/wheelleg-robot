@@ -3,6 +3,7 @@
 #include <string.h>
 #include "stdlib.h"
 #include "Saber_C3.h"
+#include "N100.h"
 
 /* Private macro -------------------------------------------------------------*/
 /* Private constants ---------------------------------------------------------*/
@@ -94,19 +95,34 @@ __weak void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 	//如果数据来自USART1,即为IMU数据
 	if(huart->Instance == UART7)
 	{
-		if(Saber_Montage_Flag)
-		{
-			memcpy(Saber_Montage + Saber_Data_Length, Saber_Rxbuffer, Saber_Data_Length);
-			Saber_Montage_Flag = 0;
-		}
-		else
-		{
-			memcpy(Saber_Montage, Saber_Rxbuffer, Saber_Data_Length);
-			Saber_Montage_Flag = 1;
-		}
-
-		HAL_UARTEx_ReceiveToIdle_DMA(&huart7,Saber_Rxbuffer,sizeof(Saber_Rxbuffer));
-	}
+	// 	if(Saber_Montage_Flag)
+	// 	{
+	// 		memcpy(Saber_Montage + Saber_Data_Length, Saber_Rxbuffer, Saber_Data_Length);
+	// 		Saber_Montage_Flag = 0;
+	// 	}
+	// 	else
+	// 	{
+	// 		memcpy(Saber_Montage, Saber_Rxbuffer, Saber_Data_Length);
+	// 		Saber_Montage_Flag = 1;
+	// 	}
+    if(Size == IMU_RS)  //收到的是IMU数据包
+     {
+        if(N100_Rxbuffer[0] == FRAME_HEAD&&N100_Rxbuffer[Size-1] == FRAME_TAIL&&N100_Rxbuffer[1] == TYPE_IMU&&Flag_Imu)
+        {
+                memcpy(N100_ReImu, N100_Rxbuffer, IMU_RS);
+                Flag_Imu = 0;
+        }
+    }
+    if(Size == AHRS_RS)  //收到的是AHRS数据包
+    {
+        if(N100_Rxbuffer[0] == FRAME_HEAD&&N100_Rxbuffer[Size-1] == FRAME_TAIL&&N100_Rxbuffer[1] == TYPE_AHRS&&Flag_Ahrs)
+        {
+            memcpy(N100_ReAhrs,N100_Rxbuffer,AHRS_RS);
+            Flag_Ahrs = 0;
+        }
+    }
+	 	HAL_UARTEx_ReceiveToIdle_DMA(&huart7,Saber_Rxbuffer,sizeof(Saber_Rxbuffer));
+    }
 	
 	else{
     for (uint8_t i = 0; i < idx; ++i) {

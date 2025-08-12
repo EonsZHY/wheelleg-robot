@@ -4,6 +4,7 @@
 #include "pid.h"
 #include "tim.h"
 #include "user_lib.h"
+#include "N100.h"
 /* Private macro -------------------------------------------------------------*/
 /* Private constants ---------------------------------------------------------*/
 /* Private types -------------------------------------------------------------*/
@@ -28,26 +29,61 @@ static void IMU_Param_Correction(IMU_Param_t* param, float gyro[3],
 
 
 void INS_Init(void) {
- Saber_Init();
+//  Saber_Init();
+ N100_Init();
 }
+
+// void INS_Task(void) {
+
+// const float gravity[3] = {0, 0, 9.805f};
+// dt = DWT_GetDeltaT(&INS_DWT_Count);
+// t += dt;
+// Saber_Read();
+// INS.Accel[X] = Saber_Angle.Acc_x*9.8;//单位m/s2
+// INS.Accel[Y] = Saber_Angle.Acc_y*9.8 ;
+// INS.Accel[Z] = Saber_Angle.Acc_z*9.8;
+
+// INS.Gyro[X] =Saber_Angle.Gyro_x*DEGREE_2_RAD;
+// INS.Gyro[Y] = Saber_Angle.Gyro_y*DEGREE_2_RAD;
+// INS.Gyro[Z] =Saber_Angle.Gyro_z*DEGREE_2_RAD;
+// INS.q[0]=Saber_Angle.q1;
+// INS.q[1]=Saber_Angle.q2;
+// INS.q[2]=Saber_Angle.q3;
+// INS.q[3]=Saber_Angle.q4;
+// BodyFrameToEarthFrame(xb, INS.xn, INS.q);
+// BodyFrameToEarthFrame(yb, INS.yn, INS.q);
+// BodyFrameToEarthFrame(zb, INS.zn, INS.q);
+
+//     // 将重力从导航坐标系n转换到机体系b,随后根据加速度计数据计算运动加速度
+//  float gravity_b[3];
+//  EarthFrameToBodyFrame(gravity, gravity_b, INS.q);
+//  for (uint8_t i = 0; i < 3; i++)  // 同样过一个低通滤波
+//     {
+//       INS.MotionAccel_b[i] =(INS.Accel[i] - gravity_b[i]) *0.9 +INS.MotionAccel_b[i] * 0.1;
+//  }
+// BodyFrameToEarthFrame(INS.MotionAccel_b, INS.MotionAccel_n,INS.q);  // 转换回导航系n
+// INS.Roll=Saber_Angle.Pitch;
+// INS.Pitch=Saber_Angle.RoLL;
+// INS.Yaw=Saber_Angle.Yaw;
+// }
 
 void INS_Task(void) {
 
 const float gravity[3] = {0, 0, 9.805f};
 dt = DWT_GetDeltaT(&INS_DWT_Count);
 t += dt;
-Saber_Read();
-INS.Accel[X] = Saber_Angle.Acc_x*9.8;//单位m/s2
-INS.Accel[Y] = Saber_Angle.Acc_y*9.8 ;
-INS.Accel[Z] = Saber_Angle.Acc_z*9.8;
+N100_Read();
+INS.Accel[X] = IMUData_Packet.accelerometer_x*9.8;//单位m/s2
+INS.Accel[Y] = IMUData_Packet.accelerometer_y*9.8 ;
+INS.Accel[Z] = IMUData_Packet.accelerometer_z*9.8;
 
-INS.Gyro[X] =Saber_Angle.Gyro_x*DEGREE_2_RAD;
-INS.Gyro[Y] = Saber_Angle.Gyro_y*DEGREE_2_RAD;
-INS.Gyro[Z] =Saber_Angle.Gyro_z*DEGREE_2_RAD;
-INS.q[0]=Saber_Angle.q1;
-INS.q[1]=Saber_Angle.q2;
-INS.q[2]=Saber_Angle.q3;
-INS.q[3]=Saber_Angle.q4;
+INS.Gyro[X] =IMUData_Packet.gyroscope_x*DEGREE_2_RAD;
+INS.Gyro[Y] = IMUData_Packet.gyroscope_y*DEGREE_2_RAD;
+INS.Gyro[Z] =IMUData_Packet.gyroscope_z*DEGREE_2_RAD;
+INS.q[0]=AHRSData_Packet.Qw;
+INS.q[1]=AHRSData_Packet.Qx;
+INS.q[2]=AHRSData_Packet.Qy;
+INS.q[3]=AHRSData_Packet.Qz;
 BodyFrameToEarthFrame(xb, INS.xn, INS.q);
 BodyFrameToEarthFrame(yb, INS.yn, INS.q);
 BodyFrameToEarthFrame(zb, INS.zn, INS.q);
@@ -60,10 +96,11 @@ BodyFrameToEarthFrame(zb, INS.zn, INS.q);
       INS.MotionAccel_b[i] =(INS.Accel[i] - gravity_b[i]) *0.9 +INS.MotionAccel_b[i] * 0.1;
  }
 BodyFrameToEarthFrame(INS.MotionAccel_b, INS.MotionAccel_n,INS.q);  // 转换回导航系n
-INS.Roll=Saber_Angle.Pitch;
-INS.Pitch=Saber_Angle.RoLL;
-INS.Yaw=Saber_Angle.Yaw;
+INS.Roll=AHRSData_Packet.Roll;
+INS.Pitch=AHRSData_Packet.Pitch;
+INS.Yaw=AHRSData_Packet.Heading;
 }
+
 
 /**
  * @brief          Transform 3dvector from BodyFrame to EarthFrame

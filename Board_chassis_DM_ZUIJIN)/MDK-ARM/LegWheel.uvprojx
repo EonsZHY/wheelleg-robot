@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32H723xx,ARM_MATH_CM7</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Devices/WS2812;../Bsp/UART;../Devices/IBUS;../Applications;../Devices/Unitree;../Algorithm;../Bsp/DWT;../Algorithm/inc;../Devices/IMU;../Drivers/CMSIS/DSP;../Devices/Saber_C3;../Devices/M1505B;../Bsp/CAN;../Middlewares/ST/ARM/DSP/Inc;../Devices/SBUS;../Devices/M6020;..\Devices\DM8009P;..\Devices\M3508;..\Devices\tpid;..\Devices\VOFA+;..\Bsp\UART</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Devices/WS2812;../Bsp/UART;../Devices/IBUS;../Applications;../Devices/Unitree;../Algorithm;../Bsp/DWT;../Algorithm/inc;../Devices/IMU;../Drivers/CMSIS/DSP;../Devices/Saber_C3;../Devices/M1505B;../Bsp/CAN;../Middlewares/ST/ARM/DSP/Inc;../Devices/SBUS;../Devices/M6020;..\Devices\DM8009P;..\Devices\M3508;..\Devices\tpid;..\Devices\VOFA+;..\Bsp\UART;..\Devices\N100</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1199,6 +1199,16 @@
               <FileName>vofa.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Devices\VOFA+\vofa.h</FilePath>
+            </File>
+            <File>
+              <FileName>N100.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Devices\N100\N100.c</FilePath>
+            </File>
+            <File>
+              <FileName>N100.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Devices\N100\N100.h</FilePath>
             </File>
           </Files>
         </Group>

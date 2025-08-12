@@ -32,6 +32,7 @@
 #include "Saber_C3.h"
 #include "board_comm.h"
 #include "vofa.h"
+#include "N100.h"
 //#include "BMI088driver.h"
 /* USER CODE END Includes */
 
@@ -95,7 +96,7 @@ osThreadId_t VofaTaskHandle;
 const osThreadAttr_t VofaTask_attributes = {
   .name = "VofaTask",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,  // µÍÓÅÏÈ¼¶
+  .priority = (osPriority_t) osPriorityLow,  // ï¿½ï¿½ï¿½ï¿½ï¿½È¼ï¿½
 };
 
 
@@ -298,7 +299,7 @@ void StartVofaTask(void *argument)
 	vofa_data[2] = f3;
     if(huart10.hdmatx->State != HAL_DMA_STATE_BUSY)
     {
-    // 2. Í¨¹ý DMA ·¢ËÍ£¨·Ç×èÈû£©
+    // 2. Í¨ï¿½ï¿½ DMA ï¿½ï¿½ï¿½Í£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     Vofa_JustFloat(vofa_data, 3);
     }
     (f1 > 20) ? (f1 = 11.4) : (f1 += 0.5);
