@@ -87,7 +87,7 @@ void UartSendData(UART_HandleTypeDef *_phuart, uint8_t *_psend_buf, uint16_t _se
  * @param huart Pointer to the UART handle.
  * @param Size Number of bytes received.
  */
-__weak void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
 	
 		static uint8_t Saber_Montage_Flag = 0;            //表示陀螺仪数据的拼接起点
@@ -105,23 +105,41 @@ __weak void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 	// 		memcpy(Saber_Montage, Saber_Rxbuffer, Saber_Data_Length);
 	// 		Saber_Montage_Flag = 1;
 	// 	}
-    if(Size == IMU_RS)  //收到的是IMU数据包
-     {
-        if(N100_Rxbuffer[0] == FRAME_HEAD&&N100_Rxbuffer[Size-1] == FRAME_TAIL&&N100_Rxbuffer[1] == TYPE_IMU&&Flag_Imu)
-        {
-                memcpy(N100_ReImu, N100_Rxbuffer, IMU_RS);
-                Flag_Imu = 0;
+       
+        N100_tmpData[Count] = N100_Rxbuffer;  // 将串口数据填入数组
+        if (((last_rsnum == FRAME_TAIL) && (N100_Rxbuffer == FRAME_HEAD)) || Count > 0) {
+            Count++;
+            if ((N100_tmpData[1] == TYPE_IMU) && (N100_tmpData[2] == IMU_LEN)) {
+                 Flag_Imu= 1;
+            }
+            if ((N100_tmpData[1] == TYPE_AHRS) && (N100_tmpData[2] == AHRS_LEN)) {
+                Flag_Ahrs = 1;
+            }
+        } else {
+            Count = 0;
         }
-    }
-    if(Size == AHRS_RS)  //收到的是AHRS数据包
-    {
-        if(N100_Rxbuffer[0] == FRAME_HEAD&&N100_Rxbuffer[Size-1] == FRAME_TAIL&&N100_Rxbuffer[1] == TYPE_AHRS&&Flag_Ahrs)
-        {
-            memcpy(N100_ReAhrs,N100_Rxbuffer,AHRS_RS);
+        last_rsnum = N100_Rxbuffer;
+
+        if (Flag_Imu == 1 && Count == IMU_RS) {  // 保存 IMU 数据
+            Count = 0;
+            Flag_Imu = 0;
+            Handle_Imu = 1;
+            if (N100_tmpData[IMU_RS - 1] == FRAME_TAIL) {  // 帧尾校验
+                memcpy(N100_ReImu, N100_tmpData, sizeof(N100_tmpData));
+            }
+        }
+
+        if (Flag_Ahrs == 1 && Count == AHRS_RS) {  // 保存 AHRS 数据
+            Count = 0;
             Flag_Ahrs = 0;
+            Handle_Ahrs = 1;
+            if (N100_tmpData[AHRS_RS - 1] == FRAME_TAIL) {
+                memcpy(N100_ReAhrs, N100_tmpData, sizeof(N100_tmpData));
+            }
+            for (int i = 0; i < sizeof(N100_tmpData); i++) N100_tmpData[i] = 0;  // 清空数据数组
         }
-    }
-	 	HAL_UARTEx_ReceiveToIdle_DMA(&huart7,Saber_Rxbuffer,sizeof(Saber_Rxbuffer));
+		HAL_UARTEx_ReceiveToIdle_DMA(&huart7, &N100_Rxbuffer, sizeof(N100_Rxbuffer));
+ 
     }
 	
 	else{
@@ -136,6 +154,7 @@ __weak void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
         }
     }
 	}
+	
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {

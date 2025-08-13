@@ -38,7 +38,6 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-  
 
 /* USER CODE END PTD */
 
@@ -96,7 +95,7 @@ osThreadId_t VofaTaskHandle;
 const osThreadAttr_t VofaTask_attributes = {
   .name = "VofaTask",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,  // ï¿½ï¿½ï¿½ï¿½ï¿½È¼ï¿½
+  .priority = (osPriority_t) osPriorityLow,  // µÍÓÅÏÈ¼¶
 };
 
 
@@ -288,23 +287,21 @@ void StartBoardcommTask(void *argument)
 void StartVofaTask(void *argument)
 {
   /* USER CODE BEGIN StartVofaTask */
-  float vofa_data[3] = {0};
+
   float f1 = 11.4, f2 = 51.4, f3 = 0;
   
   /* Infinite loop */
   for(;;)
   {
-	vofa_data[0] = f1;
-	vofa_data[1] = f2;
-	vofa_data[2] = f3;
+	vofaTask();
     if(huart10.hdmatx->State != HAL_DMA_STATE_BUSY)
     {
-    // 2. Í¨ï¿½ï¿½ DMA ï¿½ï¿½ï¿½Í£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-    Vofa_JustFloat(vofa_data, 3);
+    // 2. Í¨¹ý DMA ·¢ËÍ£¨·Ç×èÈû£©
+    Vofa_JustFloat(Vofa.data, 3);
     }
-    (f1 > 20) ? (f1 = 11.4) : (f1 += 0.5);
-    (f2 < 0) ? (f2 = 51.4) : (f2 -= 0.5);
-    f3 = f1 + f2;
+//    (f1 > 20) ? (f1 = 11.4) : (f1 += 0.5);
+//    (f2 < 0) ? (f2 = 51.4) : (f2 -= 0.5);
+//    f3 = f1 + f2;
 	osDelay(10);
   }
   }

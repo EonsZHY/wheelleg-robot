@@ -81,11 +81,12 @@ legwheel/task_manager.o: ..\Applications\Task_manager.cpp \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\libcxx\limits.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\limits.h \
   ..\Algorithm\inc\vmc.h ..\Algorithm\inc\kalman_filter.h \
-  ..\Devices\Unitree\unitree.h ..\Core\Inc\usart.h \
-  ..\Algorithm\inc\user_lib.h ..\Devices\M6020\M6020_Motor.h \
-  ..\Devices\tpid\tpid.h \
+  ..\Devices\M6020\M6020_Motor.h ..\Devices\tpid\tpid.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\libcxx\stdbool.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stdbool.h \
   ..\Bsp\CAN\BSP_fdcan.h ..\Devices\M3508\M3508.h \
   ..\Devices\DM8009P\DM_8009P.h ..\Bsp\DWT\bsp_dwt.h ..\Core\Inc\main.h \
-  ..\Devices\Saber_C3\Saber_C3.h ..\Applications\ins.h
+  ..\Devices\Saber_C3\Saber_C3.h ..\Core\Inc\usart.h \
+  ..\Devices\Unitree\unitree.h ..\Algorithm\inc\user_lib.h \
+  ..\Applications\ins.h ..\Devices\VOFA+\vofa.h \
+  D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stdarg.h

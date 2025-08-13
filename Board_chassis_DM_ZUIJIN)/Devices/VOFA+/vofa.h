@@ -9,7 +9,15 @@
 #include <string.h>
 #include <stdarg.h>
 
+
+typedef struct
+{
+	float roll;
+	float yaw;
+	float pitch;
+	float data[3];
+}Vofa_t;
 void Vofa_FireWater(const char *format, ...);
 void Vofa_JustFloat(float *_data, uint8_t _num);
-
+extern Vofa_t Vofa;
 #endif

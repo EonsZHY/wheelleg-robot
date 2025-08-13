@@ -6,7 +6,6 @@
 #include "vmc.h"
 
 #include "kalman_filter.h"
-#include "unitree.h"
 #include "M6020_Motor.h"
 #include "M3508.h"
 #include "DM_8009P.h"

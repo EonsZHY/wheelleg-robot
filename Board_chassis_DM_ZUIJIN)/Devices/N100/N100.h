@@ -28,12 +28,16 @@
 #define IMU_LEN  0x38   //56+8  8组数据
 #define AHRS_LEN 0x30   //48+8  7组数据
 
-extern uint8_t N100_Rxbuffer[100];
+extern uint8_t N100_Rxbuffer;
 extern uint8_t N100_ReImu[IMU_RS];
 extern uint8_t N100_ReAhrs[AHRS_RS];
-
+extern uint8_t N100_tmpData[IMU_RS];
+extern uint8_t Count;
+extern uint8_t last_rsnum;
 extern int Flag_Ahrs ;
 extern int Flag_Imu ;
+extern int Handle_Ahrs;
+extern int Handle_Imu;
 
 typedef struct IMUData_Packet_t{
     float gyroscope_x;          //unit: rad/s
@@ -64,6 +68,7 @@ typedef struct AHRSData_Packet_t
     float Qy;//y
     float Qz;//z
     long long Timestamp; //unit: us
+    uint8_t zero_flag;
 } AHRSData_Packet_t;
 
 

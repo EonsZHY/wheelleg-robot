@@ -6,6 +6,7 @@
 #include "ins.h"
 #include "board_comm.h"
 #include "M3508.h"
+#include "vofa.h"
 /**DEBUG**/
 float joint_pos;
 /**DEBUG**/
@@ -107,34 +108,48 @@ void boardCommunicateTask()
 	board_comm.send_.bullet_speed=25;
 	BoardCommSend(&board_comm);
 }
-
 /**
- * @brief 遥控器指令接收
+* @brief 上位机查看数据
  * @param 
  * @param 
  * @param
  */
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+void vofaTask()
 {
+	 Vofa.data[0] = INS.Roll;
+     Vofa.data[1] = INS.Pitch;
+	 Vofa.data[2] = INS.Yaw;
 	
-		static uint8_t Saber_Montage_Flag = 0;            //表示陀螺仪数据的拼接起点
-	
-	//如果数据来自USART1,即为IMU数据
-	if(huart->Instance == UART7)
-	{
-		if(Saber_Montage_Flag)
-		{
-			memcpy(Saber_Montage + Saber_Data_Length, Saber_Rxbuffer, Saber_Data_Length);
-			Saber_Montage_Flag = 0;
-		}
-		else
-		{
-			memcpy(Saber_Montage, Saber_Rxbuffer, Saber_Data_Length);
-			Saber_Montage_Flag = 1;
-		}
+}
 
-		HAL_UARTEx_ReceiveToIdle_DMA(&huart7,Saber_Rxbuffer,sizeof(Saber_Rxbuffer));
-	}
+
+///**
+// * @brief 遥控器指令接收
+// * @param 
+// * @param 
+// * @param
+// */
+//void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+//{
+//	
+//		static uint8_t Saber_Montage_Flag = 0;            //表示陀螺仪数据的拼接起点
+//	
+//	//如果数据来自USART1,即为IMU数据
+//	if(huart->Instance == UART7)
+//	{
+//		if(Saber_Montage_Flag)
+//		{
+//			memcpy(Saber_Montage + Saber_Data_Length, Saber_Rxbuffer, Saber_Data_Length);
+//			Saber_Montage_Flag = 0;
+//		}
+//		else
+//		{
+//			memcpy(Saber_Montage, Saber_Rxbuffer, Saber_Data_Length);
+//			Saber_Montage_Flag = 1;
+//		}
+
+//		HAL_UARTEx_ReceiveToIdle_DMA(&huart7,Saber_Rxbuffer,sizeof(Saber_Rxbuffer));
+//	}
 	
 //	if(huart->Instance == USART2)
 //	{
@@ -218,4 +233,3 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 //		}
 //		
 //	}
-	}

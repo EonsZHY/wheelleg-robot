@@ -73,13 +73,13 @@ const float gravity[3] = {0, 0, 9.805f};
 dt = DWT_GetDeltaT(&INS_DWT_Count);
 t += dt;
 N100_Read();
-INS.Accel[X] = IMUData_Packet.accelerometer_x*9.8;//单位m/s2
-INS.Accel[Y] = IMUData_Packet.accelerometer_y*9.8 ;
-INS.Accel[Z] = IMUData_Packet.accelerometer_z*9.8;
+INS.Accel[X] = IMUData_Packet.accelerometer_x;//单位m/s2
+INS.Accel[Y] = IMUData_Packet.accelerometer_y ;
+INS.Accel[Z] = IMUData_Packet.accelerometer_z;
 
-INS.Gyro[X] =IMUData_Packet.gyroscope_x*DEGREE_2_RAD;
-INS.Gyro[Y] = IMUData_Packet.gyroscope_y*DEGREE_2_RAD;
-INS.Gyro[Z] =IMUData_Packet.gyroscope_z*DEGREE_2_RAD;
+INS.Gyro[X] =IMUData_Packet.gyroscope_x;
+INS.Gyro[Y] = IMUData_Packet.gyroscope_y;
+INS.Gyro[Z] =IMUData_Packet.gyroscope_z;
 INS.q[0]=AHRSData_Packet.Qw;
 INS.q[1]=AHRSData_Packet.Qx;
 INS.q[2]=AHRSData_Packet.Qy;

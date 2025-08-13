@@ -37,7 +37,7 @@
 #include "math.h"
 #include "arm_math.h"
 #include "BSP_fdcan.h"
-
+#include "N100.h"
 
 /* USER CODE END Includes */
 

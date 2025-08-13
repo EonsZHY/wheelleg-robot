@@ -66,4 +66,4 @@ legwheel/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\float.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\limits.h \
-  ..\Bsp\CAN\BSP_fdcan.h
+  ..\Bsp\CAN\BSP_fdcan.h ..\Devices\N100\N100.h

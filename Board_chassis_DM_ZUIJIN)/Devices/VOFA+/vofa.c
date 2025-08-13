@@ -1,5 +1,6 @@
 #include "vofa.h"
 uint8_t vofaTxBuffer[100];
+Vofa_t Vofa;
 // 按printf格式写，最后必须加\r\n
 void Vofa_FireWater(const char *format, ...)
 {

@@ -26,7 +26,7 @@ legwheel/chassis.o: ..\Applications\Chassis.cpp ..\Applications\Chassis.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\libcxx\limits.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\limits.h \
   ..\Algorithm\inc\vmc.h ..\Algorithm\inc\kalman_filter.h \
-  ..\Devices\Unitree\unitree.h ..\Core\Inc\usart.h ..\Core\Inc\main.h \
+  ..\Devices\M6020\M6020_Motor.h ..\Devices\tpid\tpid.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h \
   ..\Core\Inc\stm32h7xx_hal_conf.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_rcc.h \
@@ -64,8 +64,7 @@ legwheel/chassis.o: ..\Applications\Chassis.cpp ..\Applications\Chassis.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_tim_ex.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_uart.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_uart_ex.h \
-  ..\Algorithm\inc\user_lib.h ..\Devices\M6020\M6020_Motor.h \
-  ..\Devices\tpid\tpid.h ..\Core\Inc\fdcan.h \
+  ..\Core\Inc\fdcan.h ..\Core\Inc\main.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\libcxx\stdbool.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stdbool.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\libcxx\stdio.h \
@@ -86,5 +85,5 @@ legwheel/chassis.o: ..\Applications\Chassis.cpp ..\Applications\Chassis.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\include\task.h \
   ..\Devices\M3508\M3508.h ..\Devices\DM8009P\DM_8009P.h \
   ..\Applications\ins.h ..\Devices\Saber_C3\Saber_C3.h \
-  ..\Core\Inc\main.h ..\Bsp\DWT\bsp_dwt.h ..\Applications\board_comm.h \
-  ..\Bsp\CAN\Bsp_fdcan.h
+  ..\Core\Inc\main.h ..\Core\Inc\usart.h ..\Bsp\DWT\bsp_dwt.h \
+  ..\Applications\board_comm.h ..\Bsp\CAN\Bsp_fdcan.h

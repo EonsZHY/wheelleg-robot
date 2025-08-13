@@ -16,21 +16,35 @@
 IMUData_Packet_t IMUData_Packet;
 AHRSData_Packet_t AHRSData_Packet;
 
-//串口处理标志
-int Flag_Ahrs = 1;
-int Flag_Imu = 1;
+//串口接收标志
+int Flag_Ahrs = 0;
+int Flag_Imu = 0;
 
-uint8_t N100_Rxbuffer[100];
+//数据处理标志
+int Handle_Ahrs = 0;
+int Handle_Imu = 0;
+
+uint8_t N100_Rxbuffer;
 uint8_t N100_ReImu[IMU_RS];
 uint8_t N100_ReAhrs[AHRS_RS];
-
+uint8_t N100_tmpData[IMU_RS];
+uint8_t Count = 0;
+uint8_t last_rsnum = 0;
 /**
   * @brief          IMU初始化任务，打开串口
   * @retval         none
   */
 void N100_Init()
 {
-    HAL_UARTEx_ReceiveToIdle_DMA(&huart7,N100_Rxbuffer,sizeof(N100_Rxbuffer));
+    
+    // 清零缓冲区
+    memset(N100_ReImu, 0, sizeof(N100_ReImu));
+    memset(N100_ReAhrs, 0, sizeof(N100_ReAhrs));
+	memset(N100_tmpData, 0, sizeof(N100_tmpData));
+    
+    // 启动DMA接收
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart7, &N100_Rxbuffer, sizeof(N100_Rxbuffer));
+    
 }
 
 
@@ -40,7 +54,7 @@ void N100_Init()
   */
 void N100_Read()
 {
-    if(Flag_Ahrs==0)
+    if(Handle_Ahrs==1)
 	{
 		if(N100_ReAhrs[1]==TYPE_AHRS&&N100_ReAhrs[2]==AHRS_LEN)
 		{	
@@ -48,7 +62,7 @@ void N100_Read()
 		AHRSData_Packet.PitchSpeed=DATA_Trans(N100_ReAhrs[11],N100_ReAhrs[12],N100_ReAhrs[13],N100_ReAhrs[14]);   //俯仰角速度
 		AHRSData_Packet.HeadingSpeed=DATA_Trans(N100_ReAhrs[15],N100_ReAhrs[16],N100_ReAhrs[17],N100_ReAhrs[18]); //偏航角速度
 			
-    AHRSData_Packet.Roll=DATA_Trans(N100_ReAhrs[19],N100_ReAhrs[20],N100_ReAhrs[21],N100_ReAhrs[22]);      //横滚角
+        AHRSData_Packet.Roll=DATA_Trans(N100_ReAhrs[19],N100_ReAhrs[20],N100_ReAhrs[21],N100_ReAhrs[22]);      //横滚角
 		AHRSData_Packet.Pitch=DATA_Trans(N100_ReAhrs[23],N100_ReAhrs[24],N100_ReAhrs[25],N100_ReAhrs[26]);     //俯仰角
 		AHRSData_Packet.Heading=DATA_Trans(N100_ReAhrs[27],N100_ReAhrs[28],N100_ReAhrs[29],N100_ReAhrs[30]);;	 //偏航角
 			
@@ -58,9 +72,9 @@ void N100_Read()
 		AHRSData_Packet.Qz=DATA_Trans(N100_ReAhrs[43],N100_ReAhrs[44],N100_ReAhrs[45],N100_ReAhrs[46]);;
 		AHRSData_Packet.Timestamp=timestamp(N100_ReAhrs[47],N100_ReAhrs[48],N100_ReAhrs[49],N100_ReAhrs[50],N100_ReAhrs[51],N100_ReAhrs[52],N100_ReAhrs[53],N100_ReAhrs[54]);   //时间戳
 		}
-	Flag_Ahrs=1;
+	Handle_Ahrs=0;
  }
-	if(Flag_Imu==0)
+	if(Handle_Imu==1)
 	{
 		if(N100_ReImu[1]==TYPE_IMU&&N100_ReImu[2]==IMU_LEN)
 		{
@@ -78,8 +92,9 @@ void N100_Read()
 			
 		IMUData_Packet.Timestamp=timestamp(N100_ReImu[55],N100_ReImu[56],N100_ReImu[57],N100_ReImu[58],N100_ReImu[59],N100_ReImu[60],N100_ReImu[61],N100_ReImu[62]);   //时间戳
 		}
-		Flag_Imu=1;
+		Handle_Imu=0;
  }
+ //HAL_UARTEx_ReceiveToIdle_DMA(&huart10, &N100_Rxbuffer, sizeof(N100_Rxbuffer));
 }
 
 /**
