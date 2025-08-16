@@ -38,15 +38,25 @@ syms F_b_sl F_b_sr;                         %腿对机体水平方向作用力
 syms F_b_hl F_b_hr;                        %腿对机体竖直方向作用力
 syms g;                                    %重力加速度
 %% 输入机器人的基本参数
-R_w=0.091;
+% R_w=0.091;
+% R_l=0.2275;
+% l_c=0.02569;
+% m_w=1.62;
+% m_l=0.92;
+% m_b=11.92;
+% I_w=0.005874;
+% I_b=0.287855;
+% I_z=0.5;
+% g=9.8;
+R_w=0.086;
 R_l=0.2275;
-l_c=0.02569;
-m_w=1.62;
-m_l=0.92;
-m_b=11.92;
-I_w=0.005874;
-I_b=0.287855;
-I_z=0.5;
+l_c=0.2125;
+m_w=1.18;
+m_l=1.11;
+m_b=10.3;
+I_w=m_w*R_w^2;
+I_b=m_b*(0.3^2+0.12^2)/12;
+I_z=0.182;
 g=9.8;
 
 %% 输入Q、R矩阵
@@ -118,56 +128,57 @@ B = simplify(vpa(subs(Jb, [s_b, ds_b, phi, dphi, theta_ll, dtheta_ll, theta_lr, 
 disp(A);
 disp(B);
 
-%% 对不同腿长下的LQR进行计算
-
-%机器人腿部参数数据采集
-% 第一列为左腿腿长范围区间中所有小数点精度0.01的长度，例如：0.09，0.18，单位：m
-% 第二列为l_wl，单位：m
-% 第三列为l_bl，单位：m
-% 第四列为I_ll，单位：kg m^2
-
-
-
-leg_data_l=[1, 1, 1, 1;
-            1.01, 1, 1, 1;
-            1.02, 1, 1, 1;
-            1.03, 1, 1, 1;
-            1.04, 1, 1, 1;
-            1.05, 1, 1, 1;
-            1.06, 1, 1, 1;
-            1.07, 1, 1, 1;
-            1.08, 1, 1, 1;
-            1.09, 1, 1, 1;
-            1.1, 1, 1, 1;
-            1.11, 1, 1, 1;
-            1.12, 1, 1, 1;
-            1.13, 1, 1, 1;
-            1.14, 1, 1, 1;
-            1.15, 1, 1, 1;
-            1.16, 1, 1, 1;
-            1.17, 1, 1, 1;
-            1.18, 1, 1, 1;
-            1.19, 1, 1, 1;
-            1.2, 1, 1, 1;
-            1, 1, 1, 1;
-            1, 1, 1, 1;
-            1, 1, 1, 1;
-            1, 1, 1, 1;
-            1, 1, 1, 1;
-            1, 1, 1, 1;
-            1, 1, 1, 1;
-            1, 1, 1, 1;
-            1, 1, 1, 1];
-
-
-
-leg_data_r = leg_data_l;
+% %% 对不同腿长下的LQR进行计算
+% 
+% %机器人腿部参数数据采集
+% % 第一列为左腿腿长范围区间中所有小数点精度0.01的长度，例如：0.09，0.18，单位：m
+% % 第二列为l_wl，单位：m
+% % 第三列为l_bl，单位：m
+% % 第四列为I_ll，单位：kg m^2
+% 
+% 
+% 
+% leg_data_l=[1, 1, 1, 1;
+%             1.01, 1, 1, 1;
+%             1.02, 1, 1, 1;
+%             1.03, 1, 1, 1;
+%             1.04, 1, 1, 1;
+%             1.05, 1, 1, 1;
+%             1.06, 1, 1, 1;
+%             1.07, 1, 1, 1;
+%             1.08, 1, 1, 1;
+%             1.09, 1, 1, 1;
+%             1.1, 1, 1, 1;
+%             1.11, 1, 1, 1;
+%             1.12, 1, 1, 1;
+%             1.13, 1, 1, 1;
+%             1.14, 1, 1, 1;
+%             1.15, 1, 1, 1;
+%             1.16, 1, 1, 1;
+%             1.17, 1, 1, 1;
+%             1.18, 1, 1, 1;
+%             1.19, 1, 1, 1;
+%             1.2, 1, 1, 1;
+%             1, 1, 1, 1;
+%             1, 1, 1, 1;
+%             1, 1, 1, 1;
+%             1, 1, 1, 1;
+%             1, 1, 1, 1;
+%             1, 1, 1, 1;
+%             1, 1, 1, 1;
+%             1, 1, 1, 1;
+%             1, 1, 1, 1];
+% 
+% 
+% 
+% leg_data_r = leg_data_l;
 %% 在不同腿长下对K矩阵进行拟合
 
-
-sample_size = size(leg_data_l,1)^2; % 单个K_ij拟合所需要的样本数
-
-length = size(leg_data_l,1); % 测量腿部数据集的行数
+leg_length = 0.1:0.01:0.4;
+% sample_size = size(leg_data_l,1)^2; % 单个K_ij拟合所需要的样本数
+sample_size = size(leg_length,2)^2;
+% length = size(leg_data_l,1); % 测量腿部数据集的行数
+length = size(leg_length,2);
 K=zeros(sample_size,40);
 K_test=zeros(sample_size,40);
 x1=zeros(sample_size,1);
@@ -176,29 +187,52 @@ x1sq=zeros(sample_size,1);
 x2sq=zeros(sample_size,1);
 x1x2=zeros(sample_size,1);
 
+% for i=1:length
+%     % l_varl = leg_data_l(i,1);
+%     % l_wl_ac = leg_data_l(i,2);
+%     % l_bl_ac = leg_data_l(i,3);
+%     % I_ll_ac = leg_data_l(i,4);
+%     for j=1:length
+%         l_varr = leg_data_r(j,1);
+%         l_wr_ac = leg_data_r(j,2);
+%         l_br_ac = leg_data_r(j,3);
+%         I_lr_ac = leg_data_r(j,4);
+%         trans_A=subs(A,[l_l l_r l_wl l_wr l_bl l_br I_ll I_lr],[l_varl l_varr l_wl_ac l_wr_ac l_bl_ac l_br_ac I_ll_ac I_lr_ac]);
+%         trans_B=subs(B,[l_l l_r l_wl l_wr l_bl l_br I_ll I_lr],[l_varl l_varr l_wl_ac l_wr_ac l_bl_ac l_br_ac I_ll_ac I_lr_ac]);
+%     %kk为不同时刻的反馈增益矩阵
+%         KK=lqrd(trans_A,trans_B,Q_cost,R_cost,0.001);
+%         KK_t=KK.';
+%         K((i-1)*30+j,:)=KK_t(:);
+%         x1((i-1)*30+j,1)=l_varl;
+%         x2((i-1)*30+j,1)=l_varr;
+%         x1sq((i-1)*30+j,1)=l_varl^2;
+%         x2sq((i-1)*30+j,1)=l_varr^2;
+%         x1x2((i-1)*30+j,1)=l_varl*l_varr;
+%     end
+% end
 for i=1:length
-    l_varl = leg_data_l(i,1);
-    l_wl_ac = leg_data_l(i,2);
-    l_bl_ac = leg_data_l(i,3);
-    I_ll_ac = leg_data_l(i,4);
+    l_varl = 0.1+(i-1)*0.01;
+    l_wl_ac = l_varl/2;
+    l_bl_ac = l_varl/2;
+    I_ll_ac = m_l*((l_varl)^2+0.05^2)/12;
     for j=1:length
-        l_varr = leg_data_r(j,1);
-        l_wr_ac = leg_data_r(j,2);
-        l_br_ac = leg_data_r(j,3);
-        I_lr_ac = leg_data_r(j,4);
-        trans_A=subs(A,[l_l l_r l_wl l_wr l_bl l_br I_ll I_lr],[l_varl l_varr l_wl_ac l_wr_ac l_bl_ac l_br_ac I_ll_ac I_lr_ac]);
-        trans_B=subs(B,[l_l l_r l_wl l_wr l_bl l_br I_ll I_lr],[l_varl l_varr l_wl_ac l_wr_ac l_bl_ac l_br_ac I_ll_ac I_lr_ac]);
+    l_varr = 0.1+(j-1)*0.01;
+    l_wr_ac = l_varr/2;
+    l_br_ac = l_varr/2;
+    I_lr_ac = m_l*((l_varr)^2+0.05^2)/12;
+    trans_A=subs(A,[l_l l_r l_wl l_wr l_bl l_br I_ll I_lr],[l_varl l_varr l_wl_ac l_wr_ac l_bl_ac l_br_ac I_ll_ac I_lr_ac]);
+    trans_B=subs(B,[l_l l_r l_wl l_wr l_bl l_br I_ll I_lr],[l_varl l_varr l_wl_ac l_wr_ac l_bl_ac l_br_ac I_ll_ac I_lr_ac]);
     %kk为不同时刻的反馈增益矩阵
-        KK=lqrd(trans_A,trans_B,Q_cost,R_cost,0.001);
-        KK_t=KK.';
-        K((i-1)*30+j,:)=KK_t(:);
-        x1((i-1)*30+j,1)=l_varl;
-        x2((i-1)*30+j,1)=l_varr;
-        x1sq((i-1)*30+j,1)=l_varl^2;
-        x2sq((i-1)*30+j,1)=l_varr^2;
-        x1x2((i-1)*30+j,1)=l_varl*l_varr;
-    end
-end
+     KK=lqrd(trans_A,trans_B,Q_cost,R_cost,0.001);
+     KK_t=KK.';
+     K((i-1)*length+j,:)=KK_t(:);
+     x1((i-1)*length+j,1)=l_varl;
+     x2((i-1)*length+j,1)=l_varr;
+     x1sq((i-1)*length+j,1)=l_varl^2;
+     x2sq((i-1)*length+j,1)=l_varr^2;
+     x1x2((i-1)*length+j,1)=l_varl*l_varr;
+     end
+ end
 K_cons = zeros(40,6);
 % 系数拟合
 X = [x1, x2, x1sq, x2sq, x1x2];
@@ -207,8 +241,6 @@ for k=1:40
     mdl = fitlm(X, K(:,k));
     disp(mdl.Coefficients.Estimate');
     K_cons(k,:)=mdl.Coefficients.Estimate'; 
-    save('K_cons.mat', 'K_cons');
-    load('K_cons.mat');
 
 end
 
