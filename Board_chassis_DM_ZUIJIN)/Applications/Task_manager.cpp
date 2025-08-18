@@ -93,7 +93,10 @@ void ChassisCalcTask() {
 //	{
 //		chassis.Controller();
 //	}
-	chassis.Controller();
+	if(INS.flag!=0)
+	{
+	    chassis.Controller();
+	}
 }
 
 /**

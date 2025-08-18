@@ -99,6 +99,15 @@ BodyFrameToEarthFrame(INS.MotionAccel_b, INS.MotionAccel_n,INS.q);  // 转换回
 INS.Roll=AHRSData_Packet.Roll;
 INS.Pitch=AHRSData_Packet.Pitch;
 INS.Yaw=AHRSData_Packet.Heading;
+
+if(INS.time>3000)
+{
+  INS.flag = 1;
+}
+else
+{
+  INS.time++;
+}
 }
 
 

@@ -28,6 +28,7 @@
 #define M3508_CurrentRatio 819.2f    //16384/20A = 819.2->1A
 #define M3508_ReductionRatio 17.0642f //3508电机减速比
 #define KT 2.5f  //2.5A/Nm,根据C620电调得到
+#define KA 0.3f  //转矩常数0.3Nm/A
 #define M3508_CURRENT_MAX_A  20.0f
 #define M3508_CURRENT_RAW_MAX 16384.0f
 #define gear_ratio 19.2f   //减速比

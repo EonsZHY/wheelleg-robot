@@ -42,7 +42,8 @@
                 "d:\\RM-electro-control\\wheelleg\\github\\wheelleg-robot\\Board_chassis_DM_ZUIJIN)\\Middlewares\\Third_Party\\FreeRTOS\\Source",
                 "d:\\RM-electro-control\\wheelleg\\github\\wheelleg-robot\\Board_chassis_DM_ZUIJIN)\\Middlewares\\Third_Party\\FreeRTOS\\Source\\portable\\MemMang",
                 "d:\\RM-electro-control\\wheelleg\\github\\wheelleg-robot\\Board_chassis_DM_ZUIJIN)\\Algorithm\\src",
-                "d:\\RM-electro-control\\wheelleg\\github\\wheelleg-robot\\Board_chassis_DM_ZUIJIN)\\Drivers\\CMSIS\\DSP\\Lib\\ARM"
+                "d:\\RM-electro-control\\wheelleg\\github\\wheelleg-robot\\Board_chassis_DM_ZUIJIN)\\Drivers\\CMSIS\\DSP\\Lib\\ARM",
+                "d:\\RM-electro-control\\wheelleg\\github\\wheelleg-robot\\Board_chassis_DM_ZUIJIN)\\Devices\\dji_motor"
             ],
             "defines": [
                 "USE_HAL_DRIVER",

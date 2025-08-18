@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-// 声明C接口函数
+// ????C??????
 void chassis_lf_joint_getInfo(FDCan_Export_Data_t data);
 void chassis_lb_joint_getInfo(FDCan_Export_Data_t data);
 void chassis_rf_joint_getInfo(FDCan_Export_Data_t data);
@@ -33,7 +33,28 @@ void chassis_rb_joint_getInfo(FDCan_Export_Data_t data);
 #ifdef __cplusplus
 }
 #endif
+// 机器人状态枚举
+typedef enum {
+    STATE_NORMAL,       // 正常行走/平衡
+    STATE_JUMPING,      // 跳跃中
+    STATE_RECOVERING,   // 倒地自起中
+} RobotState;
 
+// 跳跃阶段枚举
+typedef enum {
+    JUMP_NONE,          // 未跳跃
+    JUMP_COMPRESS,      // 压缩蓄力阶段
+    JUMP_ASCEND,        // 上升阶段
+    JUMP_RETRACT,       // 缩腿阶段
+} JumpPhase;
+
+// 自起阶段枚举
+typedef enum {
+    RECOVER_NONE,       // 未自起
+    RECOVER_SHRINK,     // 收缩腿部
+    RECOVER_ADJUST,     // 调整姿态
+    RECOVER_EXTEND,     // 伸展腿部
+} RecoverPhase;
 
 
 class balance_Chassis
@@ -44,12 +65,13 @@ class balance_Chassis
 		Vmc left_leg_, right_leg_;
 		KalmanFilter_t kf,kf_l,kf_r;
 		Lqr lqr_body_;
-		Pid left_leg_len_, right_leg_len_, anti_crash_,roll_comp_;
+		Pid left_leg_len_, right_leg_len_, anti_crash_,roll_comp_, left_leg_phi0, right_leg_phi0;
 		void motor_test_init();
 	  float MotorAngle();
 		void LegCalc();
 		void MotorInit();
 		void PidInit();
+		void StatusInit();
 		void Controller();
 		void TorCalc();
 		void TorControl();
@@ -65,6 +87,10 @@ class balance_Chassis
 		void SetFollow();
 		void SetState();
 		void SetSpd();
+		void RecoverCalc();
+		void JumpCalc();
+		void UpdateChassisStatus();
+		void ChassissControl();
 	private:
 		float left_leg_F_, right_leg_F_, roll_comp;
 		float l_wheel_T_, r_wheel_T_, left_leg_T_, right_leg_T_;
@@ -75,6 +101,11 @@ class balance_Chassis
 		bool jump_state_ = false, last_jump_state_ = false;
 		float controller_dt_, observer_dt_;
 		uint8_t jump_cnt=0;
+		RobotState robot_status;
+		JumpPhase jump_status;
+		RecoverPhase recover_status;
+		float recover_timer;
+		float jump_timer;
 };
 
 

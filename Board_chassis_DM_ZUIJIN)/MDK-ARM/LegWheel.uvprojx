@@ -1210,6 +1210,16 @@
               <FileType>5</FileType>
               <FilePath>..\Devices\N100\N100.h</FilePath>
             </File>
+            <File>
+              <FileName>dji_motor.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\Devices\dji_motor\dji_motor.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>dji_motor.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\dji_motor.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -53,6 +53,10 @@ typedef struct
     float Pitch;
     float Yaw;
     float YawTotalAngle;
+
+    float time;
+
+    float flag;
 } INS_t;
 
 typedef struct

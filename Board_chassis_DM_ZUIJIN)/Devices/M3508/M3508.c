@@ -1,5 +1,5 @@
 /**
- * @file M1505B_Motor.c
+ * @file M3508_Motor.c
  * @author ZHY
  * @brief
  * @version 0.1
@@ -107,7 +107,7 @@ void M3508_SetTor(void)
 	uint32_t StdId;
 	for(StdId=0; StdId<=1; StdId++)
 	{
-		M3508_Array[StdId].targetTorqueI=(float)(M3508_Array[StdId].targetTorque/(KT*gear_ratio));
+		M3508_Array[StdId].targetTorqueI=(float)(M3508_Array[StdId].targetTorque/(KA*gear_ratio));
 		M3508_Array[StdId].targetCurrent=	M3508_Array[StdId].targetTorqueI+T_Update(&M3508_Array[StdId].TPID, M3508_Array[StdId].realTorqueI, M3508_Array[StdId].targetTorqueI);
 		M3508_Array[StdId].sendCurrent= (int16_t)(M3508_Array[StdId].targetCurrent/ M3508_CURRENT_MAX_A*M3508_CURRENT_RAW_MAX);	
         if (M3508_Array[StdId].sendCurrent > M3508_CURRENT_RAW_MAX) M3508_Array[StdId].sendCurrent = M3508_CURRENT_RAW_MAX;

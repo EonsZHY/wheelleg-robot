@@ -59,6 +59,18 @@ void balance_Chassis::MotorInit()
 
 }
 /**
+ * @brief 底盘状态初始化
+ * @param 
+ * @param 
+ * @param
+ */
+void balance_Chassis::StatusInit()
+{
+     robot_status = STATE_NORMAL;
+     jump_status = JUMP_NONE;
+     recover_status = RECOVER_NONE;
+}
+/**
  * @brief 所有所需PID初始化
  * @param 
  * @param 
@@ -146,7 +158,7 @@ void balance_Chassis::LQRCalc() {
 	);
 	
   lqr_body_.Calc();
-
+  SynthesizeMotion();
 }
 
 /**
@@ -198,25 +210,25 @@ void balance_Chassis::TorControl() {
 void balance_Chassis::LegLenCalc() {
   left_leg_len_.SetMeasure(left_leg_.GetLegLen());
   right_leg_len_.SetMeasure(right_leg_.GetLegLen());
-	// roll_comp_.SetRef(0);
-  // roll_comp_.SetMeasure(INS.Roll * DEGREE_2_RAD);
-// // if (left_leg_.GetForceNormal() < 15.0f &&right_leg_.GetForceNormal() < 15.0f)
-// // {
-// // 	 left_leg_F_ = left_leg_len_.Calculate() + k_gravity_comp ;
-// // 	right_leg_F_ = right_leg_len_.Calculate() + k_gravity_comp ;
-// // }
-// else
-// {
-  //  left_leg_F_ = left_leg_len_.Calculate() + k_gravity_comp +roll_comp_.Calculate();
-//   right_leg_F_ = right_leg_len_.Calculate() + k_gravity_comp - roll_comp_.Calculate();
-// }
-  left_leg_F_ = left_leg_len_.Calculate();
-  right_leg_F_ = right_leg_len_.Calculate();
+  roll_comp_.SetRef(0);
+  roll_comp_.SetMeasure(INS.Roll);
+if (left_leg_.GetForceNormal() < 15.0f &&right_leg_.GetForceNormal() < 15.0f)
+   {
+ 	   left_leg_F_ = left_leg_len_.Calculate() + k_gravity_comp ;
+ 	   right_leg_F_ = right_leg_len_.Calculate() + k_gravity_comp ;
+   }
+  else
+ {
+  left_leg_F_ = left_leg_len_.Calculate() + k_gravity_comp +roll_comp_.Calculate();
+  right_leg_F_ = right_leg_len_.Calculate() + k_gravity_comp - roll_comp_.Calculate();
+ }
+  // left_leg_F_ = left_leg_len_.Calculate();
+  // right_leg_F_ = right_leg_len_.Calculate();
 }
 
 
 /**q
- * @brief 运动控制量整合
+ * @brief LQR运动控制量整合
  * @param 
  * @param 
  * @param
@@ -243,12 +255,13 @@ void balance_Chassis::Controller() {
   SetState();
   LegCalc();
    SpeedCalc();
-   LQRCalc();
+   UpdateChassisStatus();
+   ChassissControl();
+  //  LQRCalc();
   // SynthesizeMotion();
-  if (jump_state_ == true)
-    Jump();
-  else
-    LegLenCalc();
+  // if (jump_state_ == true)
+  //   Jump();
+  LegLenCalc();
   TorCalc();
 	TorControl();
 }
@@ -377,15 +390,19 @@ target_rotation_=0;
  */
 void balance_Chassis::SetState() {
   controller_dt_ = DWT_GetDeltaT(&dwt_cnt_controller_);
-
-  SetLegLen();
-	//  SetFollow();
-	 SetSpd();
+  
+  if(robot_status==STATE_NORMAL)
+  {
+    SetLegLen();
+    SetSpd();
+    SetFollow();
+  }
 	if(jump_cnt==0&&board_comm.rece_.jump_flag==1)
 	{
 		jump_state_=true;
 		jump_cnt=1;
 	}
+  
 }
 
 /**
@@ -452,6 +469,168 @@ void balance_Chassis::SpeedCalc() {
   vel_ = kf.xhat_data[0];
   acc_ = kf.xhat_data[1];
 	
+}
+
+/**
+ * @brief 根据机器人的各个状态量判断机器人所处状态
+ * @param 
+ * @param 
+ * @param
+ */
+void balance_Chassis::UpdateChassisStatus()
+{
+  //判断是否需要自起
+  if(fabs(INS.Pitch)>3.1415926f/4.0f)
+  {
+    robot_status = STATE_RECOVERING;
+		recover_status = RECOVER_SHRINK;
+  }
+  else if(jump_state_==true)
+  {
+    robot_status = STATE_JUMPING;
+  }
+
+  else{
+    robot_status = STATE_NORMAL;
+  }
+} 
+/**
+ * @brief 底盘控制
+ * @param 
+ * @param 
+ * @param
+ */
+void balance_Chassis::ChassissControl()
+{
+   switch(robot_status)
+  {
+    case STATE_NORMAL:
+         LQRCalc();
+         break;
+    case STATE_RECOVERING:
+         RecoverCalc();
+         break;
+    case STATE_JUMPING:
+         JumpCalc();
+         break;
+  }
+}
+/**
+ * @brief 倒地自起控制
+ * @param 
+ * @param 
+ * @param
+ */
+void balance_Chassis::RecoverCalc()
+{
+  switch(recover_status)
+  {
+    case RECOVER_SHRINK:
+         left_leg_len_.SetRef(0.2);   //调整腿长
+         right_leg_len_.SetRef(0.2);
+         l_wheel_T_ = 0;
+         r_wheel_T_ = 0;
+
+         recover_timer++;
+
+        if(recover_timer >= 20 && left_leg_.GetLegLen() < 0.3 && right_leg_.GetLegLen() < 0.3)
+        {
+          recover_status = RECOVER_ADJUST;
+          recover_timer = 0;
+        }
+        break;
+    case RECOVER_ADJUST:
+         left_leg_T_ = 0;   //调整髋关节角度
+         right_leg_T_ = 0;
+         l_wheel_T_ = 0;
+         r_wheel_T_ = 0;
+
+         recover_timer++;
+
+         if(recover_timer >= 20 && left_leg_.GetPhi0() < 0.3 && right_leg_.GetPhi0() < 0.3)
+         {
+          recover_status = RECOVER_EXTEND;
+          recover_timer++;
+         }
+         break;
+    case RECOVER_EXTEND:
+         left_leg_len_.SetRef(0.5);   //伸长腿
+         right_leg_len_.SetRef(0.5);
+         l_wheel_T_ = 0;
+         r_wheel_T_ = 0;
+         recover_timer++;
+
+         if(recover_timer >= 20 && left_leg_.GetLegLen() > 0.45 && right_leg_.GetLegLen() > 0.45)
+         {
+          recover_status = RECOVER_EXTEND;
+          recover_timer = 0;
+          recover_status = RECOVER_NONE;
+          robot_status = STATE_NORMAL;  // 恢复站立模式
+         }
+         break;
+    case RECOVER_NONE:
+         recover_timer = 0;
+         break;
+  }
+}
+/**
+ * @brief 跳跃控制
+ * @param 
+ * @param 
+ * @param
+ */
+void balance_Chassis::JumpCalc()
+{
+    switch(jump_status)
+    {
+      case JUMP_COMPRESS:
+           left_leg_len_.SetRef(0.2);   //调整腿长
+           right_leg_len_.SetRef(0.2);
+           l_wheel_T_ = 0;
+           r_wheel_T_ = 0;
+           jump_timer++;
+
+           if(jump_timer >= 20 && left_leg_.GetLegLen() < 0.25 && right_leg_.GetLegLen() < 0.25)
+           {
+            jump_status = JUMP_ASCEND;
+            jump_timer = 0;
+           }
+           break;
+      case JUMP_ASCEND:
+            left_leg_len_.SetRef(0.5);   //调整腿长
+            right_leg_len_.SetRef(0.5);
+            l_wheel_T_ = 0;
+            r_wheel_T_ = 0;
+
+            jump_timer++;
+
+            if(jump_timer >= 20 && left_leg_.GetLegLen() > 0.48 && right_leg_.GetLegLen() > 0.48)
+            {
+               jump_status = JUMP_RETRACT;
+               jump_timer = 0;
+            }
+            break;
+      case JUMP_RETRACT:
+            left_leg_len_.SetRef(0.2);   //调整腿长
+            right_leg_len_.SetRef(0.2);
+            l_wheel_T_ = 0;
+            r_wheel_T_ = 0;
+
+            jump_timer++;
+            if(jump_timer >= 20 && left_leg_.GetLegLen() < 0.25 && right_leg_.GetLegLen() < 0.25)
+            {
+               jump_status = JUMP_NONE;
+               jump_timer = 0;
+               robot_status = STATE_NORMAL;
+            }
+            break;
+      case JUMP_NONE:
+            jump_timer = 0;
+            break;
+           
+
+    }
+    
 }
 // 实现C接口函数
 extern "C" {
