@@ -9,6 +9,7 @@
 #include "M6020_Motor.h"
 #include "M3508.h"
 #include "DM_8009P.h"
+#include "dji_motor.h"
 
 #define RAD_2_DEGREE 57.2957795f     // 180/pi
 #define DEGREE_2_RAD 0.01745329252f  // pi/180
@@ -33,27 +34,27 @@ void chassis_rb_joint_getInfo(FDCan_Export_Data_t data);
 #ifdef __cplusplus
 }
 #endif
-// »úÆ÷ÈË×´Ì¬Ã¶¾Ù
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬Ã¶ï¿½ï¿½
 typedef enum {
-    STATE_NORMAL,       // Õý³£ÐÐ×ß/Æ½ºâ
-    STATE_JUMPING,      // ÌøÔ¾ÖÐ
-    STATE_RECOVERING,   // µ¹µØ×ÔÆðÖÐ
+    STATE_NORMAL,       // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/Æ½ï¿½ï¿½
+    STATE_JUMPING,      // ï¿½ï¿½Ô¾ï¿½ï¿½
+    STATE_RECOVERING,   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 } RobotState;
 
-// ÌøÔ¾½×¶ÎÃ¶¾Ù
+// ï¿½ï¿½Ô¾ï¿½×¶ï¿½Ã¶ï¿½ï¿½
 typedef enum {
-    JUMP_NONE,          // Î´ÌøÔ¾
-    JUMP_COMPRESS,      // Ñ¹ËõÐîÁ¦½×¶Î
-    JUMP_ASCEND,        // ÉÏÉý½×¶Î
-    JUMP_RETRACT,       // ËõÍÈ½×¶Î
+    JUMP_NONE,          // Î´ï¿½ï¿½Ô¾
+    JUMP_COMPRESS,      // Ñ¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¶ï¿½
+    JUMP_ASCEND,        // ï¿½ï¿½ï¿½ï¿½ï¿½×¶ï¿½
+    JUMP_RETRACT,       // ï¿½ï¿½ï¿½È½×¶ï¿½
 } JumpPhase;
 
-// ×ÔÆð½×¶ÎÃ¶¾Ù
+// ï¿½ï¿½ï¿½ï¿½×¶ï¿½Ã¶ï¿½ï¿½
 typedef enum {
-    RECOVER_NONE,       // Î´×ÔÆð
-    RECOVER_SHRINK,     // ÊÕËõÍÈ²¿
-    RECOVER_ADJUST,     // µ÷Õû×ËÌ¬
-    RECOVER_EXTEND,     // ÉìÕ¹ÍÈ²¿
+    RECOVER_NONE,       // Î´ï¿½ï¿½ï¿½ï¿½
+    RECOVER_SHRINK,     // ï¿½ï¿½ï¿½ï¿½ï¿½È²ï¿½
+    RECOVER_ADJUST,     // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¬
+    RECOVER_EXTEND,     // ï¿½ï¿½Õ¹ï¿½È²ï¿½
 } RecoverPhase;
 
 
@@ -62,6 +63,7 @@ class balance_Chassis
 	public:
 		// Unitree_Motor joint,lf_joint_, lb_joint_, rf_joint_, rb_joint_;
 		Class_Motor_DM_8009P lf_joint_, lb_joint_, rf_joint_, rb_joint_;
+		Class_Motor_3508 left_wheel,right_wheel;
 		Vmc left_leg_, right_leg_;
 		KalmanFilter_t kf,kf_l,kf_r;
 		Lqr lqr_body_;

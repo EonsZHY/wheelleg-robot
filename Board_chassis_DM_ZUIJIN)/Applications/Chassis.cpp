@@ -43,13 +43,12 @@ void balance_Chassis::MotorInit()
 {
 	// M1505B_FUN.M1505B_Disable();
 	// M1505B_FUN.M1505B_Enable();
-
-	M6020_Fun.M6020_Enable();
-  M3508_FUN.M3508_Init();
 	lf_joint_.Init(&hfdcan1,0x01,0x01,Motor_DM_Control_Method_NORMAL_MIT,P_MAX,V_MAX,T_MAX,I_MAX);
 	lb_joint_.Init(&hfdcan1,0x02,0x02,Motor_DM_Control_Method_NORMAL_MIT,P_MAX,V_MAX,T_MAX,I_MAX);
   rf_joint_.Init(&hfdcan1,0x03,0x03,Motor_DM_Control_Method_NORMAL_MIT,P_MAX,V_MAX,T_MAX,I_MAX);
   rb_joint_.Init(&hfdcan1,0x04,0x04,Motor_DM_Control_Method_NORMAL_MIT,P_MAX,V_MAX,T_MAX,I_MAX);
+  left_wheel.Init(CAN_Motor_ID_0x201,Control_Method_TORQUE);
+  right_wheel.Init(CAN_Motor_ID_0x201,Control_Method_TORQUE);
   //设置电机零点位置，只在需要重新设置零点时使用
   // lf_joint_.Save_Pos_Zero();
   // lb_joint_.Save_Pos_Zero();
@@ -274,16 +273,17 @@ void balance_Chassis::Controller() {
  */
 // 电机力矩输入模式
 void balance_Chassis::SetMotorTor() {
-//  lf_joint_.SetMotorT(left_leg_.GetT2());
-//   lb_joint_.SetMotorT(left_leg_.GetT1());
+  lf_joint_.SetMotorT(left_leg_.GetT2());
+   lb_joint_.SetMotorT(left_leg_.GetT1());
   rf_joint_.SetMotorT(-right_leg_.GetT2());
   rb_joint_.SetMotorT(-right_leg_.GetT1());
   // rf_joint_.SetMotorT(0);
   // rb_joint_.SetMotorT(0);
   
-	M3508_Array[0].targetTorque=l_wheel_T_;
-	M3508_Array[1].targetTorque=-r_wheel_T_;
-	M3508_FUN.M3508_SetTor();
+	left_wheel.Set_Target_Torque(l_wheel_T_);
+	right_wheel.Set_Target_Torque(-r_wheel_T_);
+	left_wheel.Calc_Current();
+    right_wheel.Calc_Current();
 }
 /**
  * @brief 力矩指令设置为0-急停
@@ -446,24 +446,28 @@ void balance_Chassis::Jump() {
  * @param
  */
 void balance_Chassis::SpeedCalc() {
-  left_w_wheel_ = M3508_Array[0].realSpeed/60*2*3.14159+ left_leg_.GetPhi2Speed() - INS.Gyro[0];
-  right_w_wheel_ =-M3508_Array[1].realSpeed/60*2*3.14159+ right_leg_.GetPhi2Speed() - INS.Gyro[0];
+  //  left_w_wheel_ = M3508_Array[0].realSpeed/60*2*3.14159+ left_leg_.GetPhi2Speed() - INS.Gyro[0];
+  // right_w_wheel_ =-M3508_Array[1].realSpeed/60*2*3.14159+ right_leg_.GetPhi2Speed() - INS.Gyro[0];
 
-  left_v_body_ = left_w_wheel_ * k_wheel_radius +
-                 left_leg_.GetLegLen() * left_leg_.GetDotTheta()*arm_cos_f32(left_leg_.GetTheta()) +
-                 left_leg_.GetLegSpeed() * arm_sin_f32(left_leg_.GetTheta());
-  right_v_body_ = right_w_wheel_ * k_wheel_radius +
-                  right_leg_.GetLegLen() * right_leg_.GetDotTheta()*arm_cos_f32(left_leg_.GetTheta()) +
-                  right_leg_.GetLegSpeed() * arm_sin_f32(right_leg_.GetTheta());
-  vel_m = (left_v_body_ + right_v_body_) / 2;
-  if (left_leg_.GetForceNormal() < 20.0f &&right_leg_.GetForceNormal() < 20.0f) {
-    vel_m = 0;
-
-  }
+   
+  
+    left_w_wheel_ = left_wheel.Get_Now_Omega() + left_leg_.GetPhi2Speed() - INS.Gyro[1];
+    right_w_wheel_ = -right_wheel.Get_Now_Omega() + right_leg_.GetPhi2Speed() - INS.Gyro[1];
+    left_v_body_ = left_w_wheel_ * k_wheel_radius +
+                  left_leg_.GetLegLen() * left_leg_.GetDotTheta()*arm_cos_f32(left_leg_.GetTheta()) +
+                  left_leg_.GetLegSpeed() * arm_sin_f32(left_leg_.GetTheta());
+   right_v_body_ = right_w_wheel_ * k_wheel_radius +
+                   right_leg_.GetLegLen() * right_leg_.GetDotTheta()*arm_cos_f32(left_leg_.GetTheta()) +
+                   right_leg_.GetLegSpeed() * arm_sin_f32(right_leg_.GetTheta());
+   vel_m = (left_v_body_ + right_v_body_) / 2;
+     if (left_leg_.GetForceNormal() < 20.0f &&right_leg_.GetForceNormal() < 20.0f) {
+     vel_m = 0;
+   }
+  
 
   // 使用kf同时估计加速度和速度,滤波更新
   kf.MeasuredVector[0] = vel_m;
-  kf.MeasuredVector[1] = INS.MotionAccel_n[1];
+  kf.MeasuredVector[1] = INS.MotionAccel_n[0];
   kf.F_data[1] = controller_dt_;  // 更新F矩阵
   Kalman_Filter_Update(&kf);
   vel_ = kf.xhat_data[0];

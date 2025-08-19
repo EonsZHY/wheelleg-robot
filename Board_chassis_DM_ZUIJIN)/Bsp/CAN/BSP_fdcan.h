@@ -23,7 +23,6 @@
 
 
 
-
 #define Can_FunGroundInit           \
     {                               \
         &can_bsp_init,              \

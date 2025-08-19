@@ -84,4 +84,5 @@ legwheel/bsp_fdcan.o: ..\Bsp\CAN\BSP_fdcan.c ..\Bsp\CAN\BSP_fdcan.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\float.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\libcxx\limits.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\limits.h \
-  ..\Algorithm\inc\vmc.h ..\Algorithm\inc\kalman_filter.h
+  ..\Algorithm\inc\vmc.h ..\Algorithm\inc\kalman_filter.h \
+  ..\Devices\dji_motor\dji_motor.h

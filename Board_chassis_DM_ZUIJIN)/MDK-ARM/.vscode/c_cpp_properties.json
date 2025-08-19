@@ -32,6 +32,7 @@
                 "d:\\RM-electro-control\\wheelleg\\github\\wheelleg-robot\\Board_chassis_DM_ZUIJIN)\\Devices\\tpid",
                 "d:\\RM-electro-control\\wheelleg\\github\\wheelleg-robot\\Board_chassis_DM_ZUIJIN)\\Devices\\VOFA+",
                 "d:\\RM-electro-control\\wheelleg\\github\\wheelleg-robot\\Board_chassis_DM_ZUIJIN)\\Devices\\N100",
+                "d:\\RM-electro-control\\wheelleg\\github\\wheelleg-robot\\Board_chassis_DM_ZUIJIN)\\Devices\\dji_motor",
                 "D:\\keil5 MDK\\ARM\\ARMCLANG\\include",
                 "D:\\keil5 MDK\\ARM\\ARMCLANG\\include\\arm_linux",
                 "D:\\keil5 MDK\\ARM\\ARMCLANG\\include\\arm_linux_compat",
@@ -42,8 +43,7 @@
                 "d:\\RM-electro-control\\wheelleg\\github\\wheelleg-robot\\Board_chassis_DM_ZUIJIN)\\Middlewares\\Third_Party\\FreeRTOS\\Source",
                 "d:\\RM-electro-control\\wheelleg\\github\\wheelleg-robot\\Board_chassis_DM_ZUIJIN)\\Middlewares\\Third_Party\\FreeRTOS\\Source\\portable\\MemMang",
                 "d:\\RM-electro-control\\wheelleg\\github\\wheelleg-robot\\Board_chassis_DM_ZUIJIN)\\Algorithm\\src",
-                "d:\\RM-electro-control\\wheelleg\\github\\wheelleg-robot\\Board_chassis_DM_ZUIJIN)\\Drivers\\CMSIS\\DSP\\Lib\\ARM",
-                "d:\\RM-electro-control\\wheelleg\\github\\wheelleg-robot\\Board_chassis_DM_ZUIJIN)\\Devices\\dji_motor"
+                "d:\\RM-electro-control\\wheelleg\\github\\wheelleg-robot\\Board_chassis_DM_ZUIJIN)\\Drivers\\CMSIS\\DSP\\Lib\\ARM"
             ],
             "defines": [
                 "USE_HAL_DRIVER",

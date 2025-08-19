@@ -109,7 +109,7 @@ void M3508_SetTor(void)
 	{
 		M3508_Array[StdId].targetTorqueI=(float)(M3508_Array[StdId].targetTorque/(KA*gear_ratio));
 		M3508_Array[StdId].targetCurrent=	M3508_Array[StdId].targetTorqueI+T_Update(&M3508_Array[StdId].TPID, M3508_Array[StdId].realTorqueI, M3508_Array[StdId].targetTorqueI);
-		M3508_Array[StdId].sendCurrent= (int16_t)(M3508_Array[StdId].targetCurrent/ M3508_CURRENT_MAX_A*M3508_CURRENT_RAW_MAX);	
+		M3508_Array[StdId].sendCurrent= (int16_t)(M3508_Array[StdId].targetCurrent);	
         if (M3508_Array[StdId].sendCurrent > M3508_CURRENT_RAW_MAX) M3508_Array[StdId].sendCurrent = M3508_CURRENT_RAW_MAX;
         if (M3508_Array[StdId].sendCurrent < -M3508_CURRENT_RAW_MAX) M3508_Array[StdId].sendCurrent = -M3508_CURRENT_RAW_MAX;
 	

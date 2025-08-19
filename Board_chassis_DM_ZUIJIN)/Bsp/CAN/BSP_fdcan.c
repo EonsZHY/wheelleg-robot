@@ -140,16 +140,35 @@ uint8_t fdcanx_receive(FDCAN_HandleTypeDef *hfdcan)
 	if(hfdcan==&hfdcan3) //can3用于控制轮毂电机，yaw轴电机和拨盘电机
 	{
 		FDCan_Export_Data_t FDCan_Export_Data;
-		if( FDCan_Export_Data.fdcan_RxHeader.Identifier==M6020_READID )
-		{
-			M6020_Fun.M6020_getInfo(FDCan_Export_Data,&M6020s_Yaw);
+		// if( FDCan_Export_Data.fdcan_RxHeader.Identifier==M6020_READID )
+		// {
+		// 	M6020_Fun.M6020_getInfo(FDCan_Export_Data,&M6020s_Yaw);
+		// }
+		// if(FDCan_Export_Data.fdcan_RxHeader.Identifier >= M3508_READID_START && FDCan_Export_Data.fdcan_RxHeader.Identifier <= M3508_READID_END)
+		// {
+		// 	M3508_FUN.M3508_getInfo(FDCan_Export_Data);
+		// }
+		// return FDCan_Export_Data.fdcan_RxHeader.DataLength;//接收数据
+		if(HAL_FDCAN_GetRxMessage(hfdcan,FDCAN_RX_FIFO0, &FDCan_Export_Data.fdcan_RxHeader, FDCan_Export_Data.FDCANx_Export_RxMessage)==HAL_OK)
+		{	
+			 if(FDCan_Export_Data.fdcan_RxHeader.Identifier >= M3508_READID_START && FDCan_Export_Data.fdcan_RxHeader.Identifier <= M3508_READID_END)
+			 {
+				    uint32_t Count;
+    				Count = (int32_t)(FDCan_Export_Data.fdcan_RxHeader.Identifier- M3508_READID_START);
+					switch (Count)
+					{
+					case 1:
+						chassis.left_wheel.FDCAN_RxCpltCallback(FDCan_Export_Data);
+						return FDCan_Export_Data.fdcan_RxHeader.DataLength;
+						break;
+					
+					case 2:
+						chassis.right_wheel.FDCAN_RxCpltCallback(FDCan_Export_Data);
+						return FDCan_Export_Data.fdcan_RxHeader.DataLength;
+						break;
+					}
+			 }
 		}
-		if(FDCan_Export_Data.fdcan_RxHeader.Identifier >= M3508_READID_START && FDCan_Export_Data.fdcan_RxHeader.Identifier <= M3508_READID_END)
-		{
-			M3508_FUN.M3508_getInfo(FDCan_Export_Data);
-		}
-		return FDCan_Export_Data.fdcan_RxHeader.DataLength;//接收数据
-
 	}
 	return 0;
 }

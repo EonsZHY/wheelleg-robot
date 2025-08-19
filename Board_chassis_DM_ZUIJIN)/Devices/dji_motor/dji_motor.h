@@ -18,16 +18,18 @@
 #include "string.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include "arm_math.h"
+#include "tpid.h"
 // 大疆电机CAN通信发送缓冲区
-uint8_t CAN1_0x1ff_Tx_Data[8];
-uint8_t CAN1_0x200_Tx_Data[8];
-uint8_t CAN1_0x2ff_Tx_Data[8];
+extern uint8_t CAN1_0x1ff_Tx_Data[8];
+extern uint8_t CAN1_0x200_Tx_Data[8];
+extern uint8_t CAN1_0x2ff_Tx_Data[8];
 
-uint8_t CAN2_0x1ff_Tx_Data[8];
-uint8_t CAN2_0x200_Tx_Data[8];
-uint8_t CAN2_0x2ff_Tx_Data[8];
+extern uint8_t CAN2_0x1ff_Tx_Data[8];
+extern uint8_t CAN2_0x200_Tx_Data[8];
+extern uint8_t CAN2_0x2ff_Tx_Data[8];
 
-uint8_t CAN_Supercap_Tx_Data[8];
+extern uint8_t CAN_Supercap_Tx_Data[8];
 
 /* 记录M3508各个电机ID
 */
@@ -35,7 +37,9 @@ uint8_t CAN_Supercap_Tx_Data[8];
 #define M3508_READID_END 0x204
 #define M3508_SENDID_Chassis 0x200   //控制轮毂电机
 #define M3508_SENDID_Fric_Dial 0x1FF //控制摩擦轮和拨盘电机
-
+// RPM换算到rad/s
+#define RPM_TO_RADPS (2.0f * PI / 60.0f)
+#define KA 0.3f  //转矩常数0.3Nm/A
 /**
  * @brief 电机状态
  *
@@ -94,13 +98,13 @@ enum Enum_Control_Method
 class Class_Motor_3508
 {
 public:
-    // PID角度环控制
-    Class_PID PID_Angle;
-    // PID角速度环控制
-    Class_PID PID_Omega;
+//    // PID角度环控制
+//    Class_PID PID_Angle;
+//    // PID角速度环控制
+//    Class_PID PID_Omega;
     //绑定的CAN
-     static FDCAN_HandleTypeDef *Can_Motor;  //电机绑定的can总线
-    void Init(FDCAN_HandleTypeDef *__hcan, Enum_CAN_Motor_ID __CAN_ID, Enum_Control_Method __Control_Method = Control_Method_OMEGA, float __Gearbox_Rate = 3591.0f / 187.0f, float __Torque_Max = 16384.0f);
+    static FDCAN_HandleTypeDef *Can_Motor;  //电机绑定的can总线
+    void Init(Enum_CAN_Motor_ID __CAN_ID, Enum_Control_Method __Control_Method = Control_Method_OMEGA, float __Gearbox_Rate = 3591.0f / 187.0f, float __Torque_Max = 16384.0f);
 
     uint16_t Get_Output_Max();
     Enum_CAN_Motor_Status Get_CAN_Motor_Status();
@@ -119,13 +123,14 @@ public:
     void Set_Target_Omega(float __Target_Omega);
     void Set_Target_Torque(float __Target_Torque);
     void Set_Out(float __Out);
-    float Output();
 
-    void FDCAN_RxCpltCallback(uint8_t *Rx_Data);
+    void FDCAN_RxCpltCallback(FDCan_Export_Data_t RxMessage);
     void TIM_Alive_PeriodElapsedCallback();
     void TIM_PID_PeriodElapsedCallback();
+	void Calc_Current();
     static void Set_Current();
-
+	void Output();
+    struct Struct_PID_Manage_Object TPID;
 protected:
     //初始化相关变量
 
@@ -158,7 +163,7 @@ protected:
     //接收的速度, rpm
     int16_t Rx_Omega = 0;
     //接收的扭矩, 目标的扭矩, -30000~30000
-    int16_t Rx_Torque = 0;
+    int16_t Rx_TorqueI = 0;
     //接收的温度, 摄氏度
     uint16_t Rx_Temperature = 0;
 
@@ -180,6 +185,8 @@ protected:
     float Now_Omega = 0.0f;
     //当前的扭矩, 直接采用反馈值
     float Now_Torque = 0.0f;
+    //当前的扭矩电流, 直接采用反馈值
+    float Now_TorqueI = 0.0f;
     //当前的温度, 摄氏度
     uint8_t Now_Temperature = 0;
 
@@ -197,10 +204,15 @@ protected:
     float Target_Torque = 0.0f;
     //输出量
     float Out = 0.0f;
-
+    float targetCurrent = 0.0f; //经过PID计算得到的转矩电流
+    float targetTorqueI = 0.0f;	//目标转矩得到的目标电流
+    int16_t sendCurrent=0.0f;	//发送给电机的电流
+    //内部变量
+    float Last_Angle = 0.0f;
+    float Last_Omega = 0.0f;
     //内部函数
 
-    void Output();
+    
 };
 /**
  * @brief GM6020无刷电机, 单片机控制输出电压
@@ -209,13 +221,7 @@ protected:
 class Class_Motor_GM6020
 {
 public:
-    // PID角度环控制
-    Class_PID PID_Angle;
-    // PID角速度环控制
-    Class_PID PID_Omega;
-    // PID扭矩环控制
-    Class_PID PID_Torque;
-
+	static FDCAN_HandleTypeDef *Can_Motor;  //电机绑定的can总线
     void Init(FDCAN_HandleTypeDef *__hcan, Enum_CAN_Motor_ID __CAN_ID, Enum_Control_Method __Control_Method = Control_Method_ANGLE, int32_t __Encoder_Offset = 0, float __Omega_Max = 320.0f * RPM_TO_RADPS);
 
     uint16_t Get_Output_Max();
@@ -243,8 +249,6 @@ public:
 protected:
     //初始化相关变量
 
-    //绑定的CAN
-    Struct_CAN_Manage_Object *CAN_Manage_Object;
     //收数据绑定的CAN ID, C6系列0x201~0x208, GM系列0x205~0x20b
     Enum_CAN_Motor_ID CAN_ID;
     //发送缓存区
@@ -325,10 +329,7 @@ protected:
 class Class_Motor_2006
 {
 public:
-    // PID角度环控制
-    Class_PID PID_Angle;
-    // PID角速度环控制
-    Class_PID PID_Omega;
+
 
     void Init(FDCAN_HandleTypeDef *__hcan, Enum_CAN_Motor_ID __CAN_ID, Enum_Control_Method __Control_Method = Control_Method_OMEGA, float __Gearbox_Rate = 36.0f, float __Torque_Max = 10000.0f);
 
@@ -358,7 +359,8 @@ protected:
     //初始化相关常量
 
     //绑定的CAN
-    Struct_CAN_Manage_Object *CAN_Manage_Object;
+    //绑定的CAN
+     static FDCAN_HandleTypeDef *Can_Motor;  //电机绑定的can总线
     //收数据绑定的CAN ID, C6系列0x201~0x208, GM系列0x205~0x20b
     Enum_CAN_Motor_ID CAN_ID;
     //发送缓存区

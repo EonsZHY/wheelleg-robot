@@ -74,7 +74,10 @@ void DM_MotorTask()
  * @param
  */
 void WheelMotorTask() {
-	M3508_FUN.M3508_setCurrent();
+	// M3508_FUN.M3508_setCurrent();
+	chassis.left_wheel.Output();
+	chassis.right_wheel.Output();
+	Class_Motor_3508::Set_Current();
 }
 
 void YawMotorTask()

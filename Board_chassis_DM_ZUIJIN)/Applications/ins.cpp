@@ -43,7 +43,7 @@ void INS_Init(void) {
 // INS.Accel[Y] = Saber_Angle.Acc_y*9.8 ;
 // INS.Accel[Z] = Saber_Angle.Acc_z*9.8;
 
-// INS.Gyro[X] =Saber_Angle.Gyro_x*DEGREE_2_RAD;
+ //INS.Gyro[X] =Saber_Angle.Gyro_x*DEGREE_2_RAD;
 // INS.Gyro[Y] = Saber_Angle.Gyro_y*DEGREE_2_RAD;
 // INS.Gyro[Z] =Saber_Angle.Gyro_z*DEGREE_2_RAD;
 // INS.q[0]=Saber_Angle.q1;
