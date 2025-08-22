@@ -90,14 +90,6 @@ const osThreadAttr_t BoardcommTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityRealtime,
 };
-/* Definitions for VofaTask */
-osThreadId_t VofaTaskHandle;
-const osThreadAttr_t VofaTask_attributes = {
-  .name = "VofaTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,  // �����ȼ�
-};
-
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -109,7 +101,6 @@ void StartChassisTask(void *argument);
 void StartLegMotorTask(void *argument);
 void StartIMUTask(void *argument);
 void StartBoardcommTask(void *argument);
-void StartVofaTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -154,8 +145,6 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of BoardcommTask */
   BoardcommTaskHandle = osThreadNew(StartBoardcommTask, NULL, &BoardcommTask_attributes);
-  /* creation of VofaTask */
-  VofaTaskHandle = osThreadNew(StartVofaTask, NULL, &VofaTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -271,41 +260,13 @@ void StartIMUTask(void *argument)
 void StartBoardcommTask(void *argument)
 {
   /* USER CODE BEGIN StartBoardcommTask */
-	static float board_start;
-  static float board_dt;
-	 BoardCommInit(&board_comm,&hfdcan2, 0x11f);
   /* Infinite loop */
   for(;;)
   {
-		board_start = DWT_GetTimeline_ms();
-		boardCommunicateTask();
-		board_dt = DWT_GetTimeline_ms() - board_start;
     osDelay(1);
   }
-  }
-  /* USER CODE END StartVofaTask */
-void StartVofaTask(void *argument)
-{
-  /* USER CODE BEGIN StartVofaTask */
-
-  float f1 = 11.4, f2 = 51.4, f3 = 0;
-  
-  /* Infinite loop */
-  for(;;)
-  {
-	vofaTask();
-    if(huart10.hdmatx->State != HAL_DMA_STATE_BUSY)
-    {
-    // 2. ͨ�� DMA ���ͣ���������
-    Vofa_JustFloat(Vofa.data, 3);
-    }
-//    (f1 > 20) ? (f1 = 11.4) : (f1 += 0.5);
-//    (f2 < 0) ? (f2 = 51.4) : (f2 -= 0.5);
-//    f3 = f1 + f2;
-	osDelay(10);
-  }
-  }
-
+  /* USER CODE END StartBoardcommTask */
+}
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */

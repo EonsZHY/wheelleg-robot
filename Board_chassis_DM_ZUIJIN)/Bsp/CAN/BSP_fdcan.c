@@ -45,7 +45,9 @@ static void can_filter_init(void)
 	fdcan_filter.FilterID1 = 0x00;                               
 	fdcan_filter.FilterID2 = 0x00;                               
 	HAL_FDCAN_ConfigFilter(&hfdcan1,&fdcan_filter); 		 				  //配置
+	fdcan_filter.FilterIndex = 1; 
 	HAL_FDCAN_ConfigFilter(&hfdcan2,&fdcan_filter); 		 				  //配置
+	fdcan_filter.FilterIndex = 2;
 	HAL_FDCAN_ConfigFilter(&hfdcan3,&fdcan_filter); 
 	HAL_FDCAN_ConfigGlobalFilter(&hfdcan1, FDCAN_REJECT, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE);
 	HAL_FDCAN_ConfigGlobalFilter(&hfdcan2, FDCAN_REJECT, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE);
