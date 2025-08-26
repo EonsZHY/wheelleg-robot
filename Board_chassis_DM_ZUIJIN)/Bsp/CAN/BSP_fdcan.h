@@ -11,6 +11,9 @@
 #ifndef _BSP_FDCAN
 #define _BSP_FDCAN
 
+#ifdef __cplusplus
+extern "C"{
+	#endif
 #include "fdcan.h"
 #include "cmsis_os.h"
 #include "queue.h"
@@ -46,4 +49,7 @@ typedef struct
 } FDCan_Export_Data_t;
 
 extern Can_Fun_t Can_Fun;
+#ifdef __cplusplus
+}
+#endif
 #endif /*__BSP_FDCAN*/

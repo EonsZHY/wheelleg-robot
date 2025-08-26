@@ -45,4 +45,4 @@ legwheel/bsp_uart.o: ..\Bsp\UART\bsp_uart.c ..\Bsp\UART\bsp_uart.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\string.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stdlib.h \
   ..\Devices\Saber_C3\Saber_C3.h ..\Core\Inc\main.h \
-  ..\Devices\N100\N100.h
+  ..\Devices\N100\N100.h ..\Devices\SBUS\SBUS.h

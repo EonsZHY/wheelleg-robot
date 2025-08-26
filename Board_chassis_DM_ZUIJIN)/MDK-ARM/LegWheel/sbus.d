@@ -6,17 +6,17 @@ legwheel/sbus.o: ..\Devices\SBUS\SBUS.c ..\Devices\SBUS\SBUS.h \
   ..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h7xx.h \
   ..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h723xx.h \
   ..\Drivers\CMSIS\Include\core_cm7.h \
-  F:\KEIL5\ARM\ARMCLANG\include\stdint.h \
-  F:\RM\Myself\buaa_leg_wheel_main\Software\BR_LegWheel_WinBack\Drivers\CMSIS\Include\cmsis_version.h \
-  F:\RM\Myself\buaa_leg_wheel_main\Software\BR_LegWheel_WinBack\Drivers\CMSIS\Include\cmsis_compiler.h \
-  F:\RM\Myself\buaa_leg_wheel_main\Software\BR_LegWheel_WinBack\Drivers\CMSIS\Include\cmsis_armclang.h \
-  F:\KEIL5\ARM\ARMCLANG\include\arm_compat.h \
-  F:\KEIL5\ARM\ARMCLANG\include\arm_acle.h \
-  F:\RM\Myself\buaa_leg_wheel_main\Software\BR_LegWheel_WinBack\Drivers\CMSIS\Include\mpu_armv7.h \
+  D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stdint.h \
+  ..\Drivers\CMSIS\Include\cmsis_version.h \
+  ..\Drivers\CMSIS\Include\cmsis_compiler.h \
+  ..\Drivers\CMSIS\Include\cmsis_armclang.h \
+  D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\arm_compat.h \
+  D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\arm_acle.h \
+  ..\Drivers\CMSIS\Include\mpu_armv7.h \
   ..\Drivers\CMSIS\Device\ST\STM32H7xx\Include\system_stm32h7xx.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h \
-  F:\KEIL5\ARM\ARMCLANG\include\stddef.h \
-  F:\KEIL5\ARM\ARMCLANG\include\math.h \
+  D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stddef.h \
+  D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\math.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_rcc_ex.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_gpio.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_gpio_ex.h \
@@ -41,4 +41,5 @@ legwheel/sbus.o: ..\Devices\SBUS\SBUS.c ..\Devices\SBUS\SBUS.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_tim_ex.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_uart.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_uart_ex.h \
-  ..\Core\Inc\usart.h F:\KEIL5\ARM\ARMCLANG\include\string.h
+  ..\Core\Inc\usart.h ..\Core\Inc\main.h \
+  D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\string.h

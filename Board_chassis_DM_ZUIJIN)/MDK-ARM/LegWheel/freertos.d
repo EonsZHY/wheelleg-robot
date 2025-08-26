@@ -63,4 +63,4 @@ legwheel/freertos.o: ..\Core\Src\freertos.c \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stdlib.h ..\Bsp\DWT\bsp_dwt.h \
   ..\Applications\board_comm.h ..\Devices\VOFA+\vofa.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stdarg.h \
-  ..\Devices\N100\N100.h
+  ..\Devices\N100\N100.h ..\Devices\SBUS\SBUS.h

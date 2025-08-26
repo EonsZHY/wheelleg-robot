@@ -102,7 +102,7 @@ INS.Yaw=AHRSData_Packet.Heading;
 
 if(INS.time>3000)
 {
-  INS.flag = 1;
+  INS.flag = 1;   //开机后等待3s
 }
 else
 {

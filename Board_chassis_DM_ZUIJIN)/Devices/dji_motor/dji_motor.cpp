@@ -13,7 +13,7 @@
 #include <stdio.h>
 
 
-FDCAN_HandleTypeDef *Class_Motor_3508::Can_Motor = &hfdcan3;
+FDCAN_HandleTypeDef *Class_Motor_3508::Can_Motor = &hfdcan3; //绑定CAN总线
 
 // 大疆电机CAN通信发送缓冲区
 uint8_t CAN1_0x1ff_Tx_Data[8];

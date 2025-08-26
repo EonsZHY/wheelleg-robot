@@ -4,6 +4,8 @@
 #include "stdlib.h"
 #include "Saber_C3.h"
 #include "N100.h"
+#include "SBUS.h"
+
 
 /* Private macro -------------------------------------------------------------*/
 /* Private constants ---------------------------------------------------------*/
@@ -90,7 +92,7 @@ void UartSendData(UART_HandleTypeDef *_phuart, uint8_t *_psend_buf, uint16_t _se
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
 	
-		static uint8_t Saber_Montage_Flag = 0;            //表示陀螺仪数据的拼接起点
+		// static uint8_t Saber_Montage_Flag = 0;            //表示陀螺仪数据的拼接起点
 	
 	//如果数据来自USART1,即为IMU数据
 	if(huart->Instance == UART7)
@@ -141,7 +143,12 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 		HAL_UARTEx_ReceiveToIdle_DMA(&huart7, &N100_Rxbuffer, sizeof(N100_Rxbuffer));
  
     }
-	
+	else if (huart->Instance == UART5)
+    {
+        SBUS_Handle();
+		SBUS_IT_Open();
+    }
+    
 	else{
     for (uint8_t i = 0; i < idx; ++i) {
         if (huart == uart_instance[i]->huart) {

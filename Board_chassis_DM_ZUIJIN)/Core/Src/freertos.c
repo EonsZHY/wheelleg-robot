@@ -33,6 +33,7 @@
 #include "board_comm.h"
 #include "vofa.h"
 #include "N100.h"
+#include "SBUS.h"
 //#include "BMI088driver.h"
 /* USER CODE END Includes */
 
@@ -53,7 +54,6 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
-
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
@@ -90,10 +90,23 @@ const osThreadAttr_t BoardcommTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityRealtime,
 };
+/* Definitions for VofaTask */
+osThreadId_t VofaTaskHandle;
+const osThreadAttr_t VofaTask_attributes = {
+  .name = "VofaTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
+/* Definitions for ET16STask */
+osThreadId_t ET16STaskHandle;
+const osThreadAttr_t ET16STask_attributes = {
+  .name = "ET16STask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityRealtime,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
-
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
@@ -101,6 +114,8 @@ void StartChassisTask(void *argument);
 void StartLegMotorTask(void *argument);
 void StartIMUTask(void *argument);
 void StartBoardcommTask(void *argument);
+void StartVofaTask(void *argument);
+void StartET16STask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -146,8 +161,13 @@ void MX_FREERTOS_Init(void) {
   /* creation of BoardcommTask */
   BoardcommTaskHandle = osThreadNew(StartBoardcommTask, NULL, &BoardcommTask_attributes);
 
+  /* creation of VofaTask */
+  VofaTaskHandle = osThreadNew(StartVofaTask, NULL, &VofaTask_attributes);
+
+  /* creation of ET16STask */
+  ET16STaskHandle = osThreadNew(StartET16STask, NULL, &ET16STask_attributes);
+
   /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
@@ -260,12 +280,61 @@ void StartIMUTask(void *argument)
 void StartBoardcommTask(void *argument)
 {
   /* USER CODE BEGIN StartBoardcommTask */
+	static float board_start;
+  static float board_dt;
+	 BoardCommInit(&board_comm,&hfdcan2, 0x11f);
   /* Infinite loop */
   for(;;)
   {
+		board_start = DWT_GetTimeline_ms();
+		boardCommunicateTask();
+		board_dt = DWT_GetTimeline_ms() - board_start;
     osDelay(1);
   }
   /* USER CODE END StartBoardcommTask */
+}
+
+/* USER CODE BEGIN Header_StartVofaTask */
+/**
+* @brief Function implementing the VofaTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartVofaTask */
+void StartVofaTask(void *argument)
+{
+  /* USER CODE BEGIN StartVofaTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    vofaTask();
+    Vofa_JustFloat(Vofa.data, 3);
+
+  }
+  /* USER CODE END StartVofaTask */
+}
+
+/* USER CODE BEGIN Header_StartET16STask */
+/**
+* @brief Function implementing the ET16STask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartET16STask */
+void StartET16STask(void *argument)
+{
+  /* USER CODE BEGIN StartET16STask */
+  static float ET16S_start;
+  static float ET16S_dt;
+  SBUS_IT_Open();
+  /* Infinite loop */
+  for(;;)
+  {
+    ET16S_start = DWT_GetTimeline_ms();
+    ET16S_dt = DWT_GetTimeline_ms() - ET16S_start;
+    osDelay(1);
+  }
+  /* USER CODE END StartET16STask */
 }
 
 /* Private application code --------------------------------------------------*/
