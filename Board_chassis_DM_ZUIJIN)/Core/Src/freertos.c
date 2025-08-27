@@ -211,6 +211,7 @@ void StartChassisTask(void *argument)
   /* Infinite loop */
 	static float chassis_start;
   static float chassis_dt;
+	ChassisInit();
   for(;;)
   {
 		chassis_start = DWT_GetTimeline_ms();

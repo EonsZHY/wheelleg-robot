@@ -87,4 +87,4 @@ legwheel/chassis.o: ..\Applications\Chassis.cpp ..\Applications\Chassis.h \
   ..\Devices\dji_motor\dji_motor.h ..\Applications\ins.h \
   ..\Devices\Saber_C3\Saber_C3.h ..\Core\Inc\main.h ..\Core\Inc\usart.h \
   ..\Bsp\DWT\bsp_dwt.h ..\Applications\board_comm.h \
-  ..\Bsp\CAN\Bsp_fdcan.h
+  ..\Bsp\CAN\Bsp_fdcan.h ..\Devices\SBUS\SBUS.h

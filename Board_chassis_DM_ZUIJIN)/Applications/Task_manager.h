@@ -12,6 +12,7 @@ extern void YawMotorTask();
 extern void ChassisCalcTask();
 extern void boardCommunicateTask();
 extern void vofaTask();
+extern void ChassisInit();
 #ifdef __cplusplus
 }
 #endif

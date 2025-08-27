@@ -2,7 +2,6 @@
 #include "Chassis.h"
 #include "bsp_dwt.h"
 #include "Saber_C3.h"
-#include "unitree.h"
 #include "ins.h"
 #include "board_comm.h"
 #include "M3508.h"
@@ -10,6 +9,16 @@
 /**DEBUG**/
 float joint_pos;
 /**DEBUG**/
+/**
+ * @brief 底盘初始化
+ * @param 
+ * @param 
+ * @param
+ */
+void ChassisInit()
+{
+	chassis.StatusInit();
+}
 
 /**
  * @brief 模组初始化

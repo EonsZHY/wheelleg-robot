@@ -6,7 +6,9 @@
         "dm_8009p.h": "c",
         "m3508.h": "c",
         "tpid.h": "c",
-        "bsp_uart.h": "c"
+        "bsp_uart.h": "c",
+        "cmath": "c",
+        "cstdlib": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

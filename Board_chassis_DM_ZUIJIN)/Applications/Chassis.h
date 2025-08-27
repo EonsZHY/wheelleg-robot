@@ -18,8 +18,8 @@
 #define ACC_PROCESS_NOISE 2000  
 #define ACC_MEASURE_NOISE 0.01  
 
-#define SPEED_MAX 2
-#define W_SPEED_MAX  4
+// #define SPEED_MAX 2
+// #define W_SPEED_MAX  4
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,7 +54,7 @@ typedef enum {
     RECOVER_NONE,       // δ����
     RECOVER_SHRINK,     // �����Ȳ�
     RECOVER_ADJUST,     // ������̬
-    RECOVER_EXTEND,     // ��չ�Ȳ�
+    //RECOVER_EXTEND,     // ��չ�Ȳ�
 } RecoverPhase;
 
 
