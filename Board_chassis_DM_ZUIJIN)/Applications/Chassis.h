@@ -34,6 +34,8 @@ void chassis_rb_joint_getInfo(FDCan_Export_Data_t data);
 #ifdef __cplusplus
 }
 #endif
+#define MAX_LEG_LENGTH 0.4f //最大腿长
+#define MIN_LEG_LENGTH 0.2f //最短腿长
 // ������״̬ö��
 typedef enum {
     STATE_NORMAL,       // ��������/ƽ��
@@ -51,7 +53,7 @@ typedef enum {
 
 // ����׶�ö��
 typedef enum {
-    RECOVER_NONE,       // δ����
+	RECOVER_NONE,
     RECOVER_SHRINK,     // �����Ȳ�
     RECOVER_ADJUST,     // ������̬
     //RECOVER_EXTEND,     // ��չ�Ȳ�
@@ -101,6 +103,7 @@ class balance_Chassis
 		float jump_start_time_, jump_now_time_;
 		uint32_t dwt_cnt_controller_, dwt_cnt_observer;
 		bool jump_state_ = false, last_jump_state_ = false;
+		bool recover_state_ = false;
 		float controller_dt_, observer_dt_;
 		uint8_t jump_cnt=0;
 		RobotState robot_status;

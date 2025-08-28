@@ -7,8 +7,8 @@
 #include "BSP_fdcan.h"
 #include "SBUS.h"
 /*************const***************/
-const float k_gravity_comp =5.96 * 9.8f;
-const float k_wheel_radius=0.091;
+const float k_gravity_comp =5.0425 * 9.8f;
+const float k_wheel_radius=0.065;
 const float k_phi1_bias =0.9124f + 3.1415f;
 const float k_phi4_bias = 3.1415f;
 
@@ -111,22 +111,24 @@ void balance_Chassis::SpeedEstInit() {
  * @param
  */
 void balance_Chassis::LegCalc() {
-  // left_leg_.SetBodyData(INS.Pitch * DEGREE_2_RAD, INS.MotionAccel_n[2]);
-  // right_leg_.SetBodyData(INS.Pitch * DEGREE_2_RAD, INS.MotionAccel_n[2]);
-  // left_leg_.SetLegData(lb_joint_.GetAngle() + k_phi1_bias, lb_joint_.GetSpeed(),
-  //                      lf_joint_.GetAngle() + k_phi4_bias, lf_joint_.GetSpeed(),
-  //                      lb_joint_.GetTor(), lf_joint_.GetTor());
+   left_leg_.SetBodyData(INS.Pitch , INS.MotionAccel_n[2]);
+   right_leg_.SetBodyData(INS.Pitch , INS.MotionAccel_n[2]);
+   left_leg_.SetLegData(lb_joint_.GetAngle() + k_phi1_bias, lb_joint_.GetSpeed(),
+                       lf_joint_.GetAngle() + k_phi4_bias, lf_joint_.GetSpeed(),
+                        lb_joint_.GetTor(), lf_joint_.GetTor());
   right_leg_.SetLegData(
       -rb_joint_.GetAngle() , -rb_joint_.GetSpeed(),
       -rf_joint_.GetAngle() + k_phi4_bias, -rf_joint_.GetSpeed(),
       -rb_joint_.GetTor(), -rf_joint_.GetTor());
+  left_leg_.DerivateCalc();
+  right_leg_.DerivateCalc();
 
-  // left_leg_.LegCalc();
+  left_leg_.LegCalc();
   right_leg_.LegCalc();
-  // left_leg_.Jacobian();
+  left_leg_.Jacobian();
   right_leg_.Jacobian();
-  // left_leg_.LegForceCalc();
-  // right_leg_.LegForceCalc();
+   left_leg_.LegForceCalc();
+   right_leg_.LegForceCalc();
 }
 
 /**
@@ -220,8 +222,12 @@ void balance_Chassis::LegLenCalc() {
   roll_comp_.SetMeasure(INS.Roll);
 if (left_leg_.GetForceNormal() < 15.0f &&right_leg_.GetForceNormal() < 15.0f)
    {
- 	   left_leg_F_ = left_leg_len_.Calculate() + k_gravity_comp*arm_cos_f32(left_leg_.GetTheta()) ;
- 	   right_leg_F_ = right_leg_len_.Calculate() + k_gravity_comp*arm_cos_f32(right_leg_.GetTheta()) ;
+ 	  //  left_leg_F_ = left_leg_len_.Calculate() + k_gravity_comp*arm_cos_f32(left_leg_.GetTheta()) ;
+ 	  //  right_leg_F_ = right_leg_len_.Calculate() + k_gravity_comp*arm_cos_f32(right_leg_.GetTheta()) ;
+    left_leg_len_.SetMeasure(MAX_LEG_LENGTH);
+    right_leg_len_.SetMeasure(MAX_LEG_LENGTH);
+    left_leg_F_ = left_leg_len_.Calculate();
+    right_leg_F_ = right_leg_len_.Calculate();
    }
   else
  {
@@ -473,8 +479,8 @@ void balance_Chassis::SpeedCalc() {
 
    
   
-    left_w_wheel_ = left_wheel.Get_Now_Omega() + left_leg_.GetPhi2Speed() - INS.Gyro[1];
-    right_w_wheel_ = -right_wheel.Get_Now_Omega() + right_leg_.GetPhi2Speed() - INS.Gyro[1];
+    left_w_wheel_ = left_wheel.Get_Now_Omega() + left_leg_.GetPhi0Speed() - INS.Gyro[1];
+    right_w_wheel_ = -right_wheel.Get_Now_Omega() + right_leg_.GetPhi0Speed() - INS.Gyro[1];
     left_v_body_ = left_w_wheel_ * k_wheel_radius +
                   left_leg_.GetLegLen() * left_leg_.GetDotTheta()*arm_cos_f32(left_leg_.GetTheta()) +
                   left_leg_.GetLegSpeed() * arm_sin_f32(left_leg_.GetTheta());
@@ -616,8 +622,8 @@ void balance_Chassis::JumpCalc()
     switch(jump_status)
     {
       case JUMP_COMPRESS:
-           left_leg_len_.SetRef(0.2);   //调整腿长
-           right_leg_len_.SetRef(0.2);
+           left_leg_len_.SetRef(MIN_LEG_LENGTH);   //调整腿长
+           right_leg_len_.SetRef(MIN_LEG_LENGTH);
            l_wheel_T_ = 0;
            r_wheel_T_ = 0;
            jump_timer++;
@@ -629,8 +635,8 @@ void balance_Chassis::JumpCalc()
            }
            break;
       case JUMP_ASCEND:
-            left_leg_len_.SetRef(0.5);   //调整腿长
-            right_leg_len_.SetRef(0.5);
+            left_leg_len_.SetRef(MAX_LEG_LENGTH);   //调整腿长
+            right_leg_len_.SetRef(MAX_LEG_LENGTH);
             l_wheel_T_ = 0;
             r_wheel_T_ = 0;
 
@@ -643,8 +649,8 @@ void balance_Chassis::JumpCalc()
             }
             break;
       case JUMP_RETRACT:
-            left_leg_len_.SetRef(0.2);   //调整腿长
-            right_leg_len_.SetRef(0.2);
+            left_leg_len_.SetRef(MIN_LEG_LENGTH);   //调整腿长
+            right_leg_len_.SetRef(MIN_LEG_LENGTH);
             l_wheel_T_ = 0;
             r_wheel_T_ = 0;
 

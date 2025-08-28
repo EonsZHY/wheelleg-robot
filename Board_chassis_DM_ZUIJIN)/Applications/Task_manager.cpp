@@ -2,23 +2,15 @@
 #include "Chassis.h"
 #include "bsp_dwt.h"
 #include "Saber_C3.h"
+#include "unitree.h"
 #include "ins.h"
 #include "board_comm.h"
 #include "M3508.h"
 #include "vofa.h"
+#include "SBUS.h"
 /**DEBUG**/
 float joint_pos;
 /**DEBUG**/
-/**
- * @brief 底盘初始化
- * @param 
- * @param 
- * @param
- */
-void ChassisInit()
-{
-	chassis.StatusInit();
-}
 
 /**
  * @brief 模组初始化
@@ -49,7 +41,16 @@ chassis.SpeedEstInit();
 // chassis.rb_joint_.DM_8009P_Ctrl();
 
 // }
-
+/**
+ * @brief 底盘初始化
+ * @param 
+ * @param 
+ * @param
+ */
+ void ChassisInit()
+ {
+	 chassis.StatusInit();
+ }
 /**
  * @brief 达妙电机控制指令下发
  * @param 

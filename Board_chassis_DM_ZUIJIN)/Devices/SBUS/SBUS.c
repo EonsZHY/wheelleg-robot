@@ -25,11 +25,11 @@ void SBUS_IT_Open(void)
 }
 
 void SBUS_Handle()
-{		static uint32_t last_time = 0;
-		uint32_t current_time = HAL_GetTick();
-		float dt = (current_time - last_time) / 1000.0f; // 转换为秒
-		if (dt <= 0) dt = 0.001f; // 防止除零
-		last_time = current_time;
+{       static uint32_t last_time = 0;
+        uint32_t current_time = HAL_GetTick();
+        float dt = (current_time - last_time) / 1000.0f; // 转换为秒
+        if (dt <= 0) dt = 0.001f; // 防止除零
+        last_time = current_time;
 
 		if ((sbus_rx_buf[0] == 0x0F))
 		{
@@ -66,10 +66,10 @@ void SBUS_Handle()
         // sbusrev.yaw_speed = map_sbus_to_range(sbus.ch[0], -YAW_SPEED_MAX, YAW_SPEED_MAX);
         // sbusrev.len = map_sbus_to_range(sbus.ch[1], -MAX_LEN, MAX_LEN) + MID_LEN;
         // 设置目标值（原始映射）
-        ramp_control.speed_target = -1*(map_sbus_to_range(sbus.ch[1], -SPEED_MAX, SPEED_MAX));
-        ramp_control.w_speed_target = map_sbus_to_range(sbus.ch[0], -W_SPEED_MAX, W_SPEED_MAX);
-        ramp_control.yaw_speed_target = map_sbus_to_range(sbus.ch[3], -YAW_SPEED_MAX, YAW_SPEED_MAX);
-        ramp_control.len_target = map_sbus_to_range(sbus.ch[2], -MAX_LEN, MAX_LEN) + MID_LEN;
+        ramp_control.speed_target = map_sbus_to_range(sbus.ch[2], -SPEED_MAX, SPEED_MAX);
+        ramp_control.w_speed_target = map_sbus_to_range(sbus.ch[3], -W_SPEED_MAX, W_SPEED_MAX);
+        ramp_control.yaw_speed_target = map_sbus_to_range(sbus.ch[0], -YAW_SPEED_MAX, YAW_SPEED_MAX);
+        ramp_control.len_target = map_sbus_to_range(sbus.ch[1], -MAX_LEN, MAX_LEN) + MID_LEN;
 
         // 应用斜坡处理
         ramp_control.speed_current = Ramp_Handle(ramp_control.speed_current, ramp_control.speed_target, RAMP_RATE_SPEED, dt);

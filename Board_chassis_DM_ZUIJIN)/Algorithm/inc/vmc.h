@@ -33,6 +33,7 @@ class Vmc {
   void Jacobian();
   void TorCalc();
   void LegForceCalc();
+  void DerivateCalc();  //计算phi0和l0的变化率
   void SetBodyData(const float _phi, const float _acc_z) {
     phi_ = _phi;
     ddot_z_M_ = _acc_z;
@@ -59,6 +60,7 @@ class Vmc {
   float GetPhi0() { return phi0_; };
   float GetPhi2Speed() { return w_phi2_; };
   float GetForceNormal() { return F_N_; };
+  float GetPhi0Speed() { return w_phi0_; };
 
  private:
   float phi_, phi0_, phi1_, phi4_, w_phi1_, w_phi4_, l0_;
@@ -71,6 +73,8 @@ class Vmc {
   float phi2_, phi3_;
   float a0_, b0_, bd_, c0_;
   float j_[4], inv_j_[4];
+  float dot_xb, dot_yb;
+  float A1;
 };
 /* Exported variables --------------------------------------------------------*/
 /* Exported function prototypes ----------------------------------------------*/
