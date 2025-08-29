@@ -92,7 +92,7 @@ void WheelMotorTask() {
 
 void YawMotorTask()
 {
-	M6020_Fun.M6020_setVoltage();
+	chassis.YAW.SetVoltage();
 }
 
 /**
@@ -120,7 +120,7 @@ void ChassisCalcTask() {
  */
 void boardCommunicateTask()
 {
-	board_comm.send_.yaw_real_position=(int16_t)((M6020s_Yaw.realAngle+Saber_Angle.Yaw/360*8192)/2-2048) ;
+	board_comm.send_.yaw_real_position=(int16_t)((chassis.YAW.realAngle+Saber_Angle.Yaw/360*8192)/2-2048) ;
 	board_comm.send_.bullet_speed=25;
 	BoardCommSend(&board_comm);
 }

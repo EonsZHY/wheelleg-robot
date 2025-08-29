@@ -1,8 +1,9 @@
 
 #include "M6020_Motor.h"
 #include "BSP_fdcan.h"
-//Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½Äµï¿½ï¿½ï¿½Ä½á¹¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½é£¬Ö±ï¿½Û±ï¿½ï¿½Úºï¿½ï¿½Úµï¿½ï¿½Ô¹Û²ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½Ã¡ï¿½
-M6020s_t M6020s_Yaw;                                    //IDÎª1
+
+//Ö±½ÓÉùÃ÷¶ÔÓ¦µÄµç»úµÄ½á¹¹Ìå¶ø²»ÓÃÊý×é£¬Ö±¹Û±ãÓÚºóÆÚµ÷ÊÔ¹Û²ìÊý¾ÝÊ¹ÓÃ
+M6020s_t M6020s_Yaw[M6020_Amount];                                    //IDÎª1
 uint8_t M6020_Data_Tx[8];
 
 void M6020_Enable(void);
@@ -16,29 +17,31 @@ M6020_Fun_t M6020_Fun = M6020_FunGroundInit;
 
 
 /**
-  * @brief  M6020pidï¿½ï¿½ï¿½ï¿½
+  * @brief  M6020pid³õÊ¼»¯
   * @param  None
   * @retval None
   */
 void M6020_Enable(void)
 {	
+ 
 	Position_PIDInit(&M6020s_Yaw.Aim_position_PID, 1300.0f, 70.0f, 900.0f, 300.0f, 30000, 10000);
 	Position_PIDInit(&M6020s_Yaw.position_PID, 5.0f, 0.0f, 3.0f, 0.0f, 30000, 10000);
 	Position_PIDInit(&M6020s_Yaw.velocity_PID, 50.0f, 0.0f, 1.5f, 0.0f, 30000, 10000);
+  
 }
 
 
 /**
-  * @brief  ï¿½ï¿½ï¿½ï¿½M6020ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¹ï¿½ï¿½idï¿½ï¿½Îª1~4ï¿½ï¿½
-  * @param  uqx (x:1~4) ï¿½ï¿½Ó¦idï¿½Åµï¿½ï¿½ï¿½Äµï¿½Ñ¹Öµï¿½ï¿½ï¿½ï¿½Î§ -30000~0~30000
+  * @brief  ÉèÖÃM6020µç»úµçÑ¹£¨idºÅÎª1~4£©
+  * @param  uqx (x:1~4) ¶ÔÓ¦idºÅµç»úµÄµçÑ¹Öµ£¬·¶Î§ -30000~0~30000
   * @retval None
   */
 
  void M6020_setVoltage(void)
  {
 
- 	M6020_Data_Tx[0] = M6020s_Yaw.outCurrent >> 8;
- 	M6020_Data_Tx[1] = M6020s_Yaw.outCurrent;
+ 	M6020_Data_Tx[0] = M6020s_Yaw[0].outCurrent >> 8;
+ 	M6020_Data_Tx[1] = M6020s_Yaw[0].outCurrent;
  	M6020_Data_Tx[2] = 0;
  	M6020_Data_Tx[3] = 0;
  	M6020_Data_Tx[4] = 0;
@@ -49,58 +52,59 @@ void M6020_Enable(void)
  }
 
 /**
-  * @brief  ï¿½ï¿½CANï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½È¡M6020ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
-  * @param  RxMessage 	CANï¿½ï¿½ï¿½Ä½ï¿½ï¿½Õ½á¹¹ï¿½ï¿½
+  * @brief  ´ÓCAN±¨ÎÄÖÐ»ñÈ¡M6020µç»úÐÅÏ¢
+  * @param  RxMessage 	CAN±¨ÎÄ½ÓÊÕ½á¹¹Ìå
   * @retval None
   */
 
-void M6020_getInfo(FDCan_Export_Data_t RxMessage,M6020s_t *m6020)
+void M6020_getInfo(FDCan_Export_Data_t RxMessage)
 {
 
+    int32_t StdId;
+    StdId = (int32_t)RxMessage.CAN_RxHeader.StdId - M6020_READID_START; //ÓÉ0¿ªÊ¼
+    //½â°üÊý¾Ý£¬Êý¾Ý¸ñÊ½Ïê¼ûC620µçµ÷ËµÃ÷ÊéP33
+    M6020_Array[StdId]->lastAngle = M6020_Array[StdId]->realAngle;
+    M6020_Array[StdId]->realAngle = (uint16_t)(RxMessage.CANx_Export_RxMessage[0] << 8 | RxMessage.CANx_Export_RxMessage[1]);
+    M6020_Array[StdId]->realSpeed = (int16_t)(RxMessage.CANx_Export_RxMessage[2] << 8 | RxMessage.CANx_Export_RxMessage[3]);
+    M6020_Array[StdId]->realCurrent = (int16_t)(RxMessage.CANx_Export_RxMessage[4] << 8 | RxMessage.CANx_Export_RxMessage[5]);
+    M6020_Array[StdId]->temperture = RxMessage.CANx_Export_RxMessage[6];
 
-    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½ï¿½Ý¸ï¿½Ê½ï¿½ï¿½ï¿½C620ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½ï¿½P33
-   m6020->lastAngle =m6020->realAngle;
-    m6020->realAngle = (uint16_t)(RxMessage.FDCANx_Export_RxMessage[0] << 8 | RxMessage.FDCANx_Export_RxMessage[1]);
-    m6020->realSpeed = (int16_t)(RxMessage.FDCANx_Export_RxMessage[2] << 8 | RxMessage.FDCANx_Export_RxMessage[3]);
-    m6020->realCurrent = (int16_t)(RxMessage.FDCANx_Export_RxMessage[4] << 8 | RxMessage.FDCANx_Export_RxMessage[5]);
-    m6020->temperture = RxMessage.FDCANx_Export_RxMessage[6];
-
-    if (m6020->realAngle - m6020->lastAngle < -6500)
+    if (M6020_Array[StdId]->realAngle - M6020_Array[StdId]->lastAngle < -6500)
     {
-       m6020->turnCount++;
+        M6020_Array[StdId]->turnCount++;
     }
 
-    if (m6020->lastAngle -m6020->realAngle < -6500)
+    if (M6020_Array[StdId]->lastAngle - M6020_Array[StdId]->realAngle < -6500)
     {
-        m6020->turnCount--;
+        M6020_Array[StdId]->turnCount--;
     }
 
-  m6020->totalAngle =m6020->realAngle + (8192 * m6020->turnCount);
-    //Ö¡ï¿½ï¿½Í³ï¿½Æ£ï¿½ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½Â±ï¿½Ö¾Î»
-    m6020->InfoUpdateFrame++;
-   m6020->InfoUpdateFlag = 1;
+    M6020_Array[StdId]->totalAngle = M6020_Array[StdId]->realAngle + (8192 * M6020_Array[StdId]->turnCount);
+    //Ö¡ÂÊÍ³¼Æ£¬Êý¾Ý¸üÐÂ±êÖ¾Î»
+    M6020_Array[StdId]->InfoUpdateFrame++;
+    M6020_Array[StdId]->InfoUpdateFlag = 1;
 
 }
 
-/*
-*@brief  ï¿½è¶¨M6020ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½Ç¶ï¿½
-* @param  motorName 	ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ @ref M6623Name_e
-*			angle		ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½Î§ 0~8191 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½ï¿½8191ï¿½áµ¼ï¿½Âµï¿½ï¿½ï¿½ñµ´£ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½Þ·ï¿½
-* @retval None
-* */
+/**
+  * @brief  Éè¶¨M6020µç»úµÄÄ¿±ê½Ç¶È
+  * @param  M6020 	µç»úÊý¾Ý½á¹¹ÌåµØÖ· 
+  * @param  angle		»úÐµ½Ç¶ÈÖµ£¬·¶Î§ 0~8191 ÓÉÓÚÉèÖÃ0ºÍ8191»áµ¼ÖÂµç»úÕñµ´£¬Òª×ö¸öÏÞ·ù
+  * @retval None
+  */
 void M6020_setTargetAngle(M6020s_t *M6020, int32_t angle)
 {
     M6020->targetAngle = angle;
 }
 
-/*************************************
-* Method:    M6020_OverflowReset
-* Returns:   void
-* Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë´Ëºï¿½ï¿½ï¿½ï¿½Ô½ï¿½ï¿½totalAngle ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½â¡£
-************************************/
+/**
+  * @brief  M6020_Reset
+  * @param  µç»úÊý¾Ý½á¹¹ÌåµØÖ·
+  * @retval None
+  * ËµÃ÷£ºµ÷ÔË´Ëº¯ÊýÒÔ½â¾ötotalAngle µÈÒç³öµÄÎÊÌâ¡£
+  */
 void M6020_Reset(M6020s_t *m6020)
 {
-    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½ï¿½Ý¸ï¿½Ê½ï¿½ï¿½ï¿½C620ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½ï¿½P33
     m6020->lastAngle = m6020->realAngle;
     m6020->totalAngle = m6020->realAngle;
     m6020->turnCount = 0;

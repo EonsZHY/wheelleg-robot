@@ -120,7 +120,7 @@ void Position_PIDInit(struct Struct_PID_Manage_Object *pid, float _kp, float _ki
     pid->i_out = 0;
     pid->error = 0;
     pid->last_error = 0;
-	  pid->error_target = 0;
+	pid->error_target = 0;
     pid->output = 0;
     pid->now_point = 0;
     pid->set_point = 0;

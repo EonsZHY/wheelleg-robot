@@ -18,8 +18,9 @@
 #include <stdio.h>
 #include "BSP_fdcan.h"
 
-#define M6020_READID 0x205 //当ID为1时的报文ID
+#define M6020_READID_START 0x205 //当ID为1时的报文ID
 #define M6020_SENDID 0x1FF //1~4的电机，0x2FF为5~7
+#define M6020_Amount 1
 
 #define M6020_MaxOutput 30000 //发送给电机的最大控制值
 #define M6020_mAngle 8191     //6020的机械角度最大值0~8191。MachineAngle
@@ -63,12 +64,12 @@ typedef struct
 typedef struct
 {
 	void (*M6020_setVoltage)(void);
-  void (*M6020_getInfo)(FDCan_Export_Data_t RxMessage,M6020s_t *m6020);
+  void (*M6020_getInfo)(FDCan_Export_Data_t RxMessage);
   void (*M6020_Reset)(M6020s_t *m6020);
 	void (*M6020_Enable)(void);
-	
+	void (*M6020_setTargetAngle)(M6020s_t *M6020, int32_t angle);
 } M6020_Fun_t;
 
-extern M6020s_t M6020s_Yaw;   //ID为1
+extern M6020s_t M6020s_Yaw[1];   //ID为1
 extern M6020_Fun_t M6020_Fun;
 #endif /* __M6020_MOTOR_H */

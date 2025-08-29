@@ -81,7 +81,7 @@ float Pid::Calculate() {
 }
 
 /**
- * @brief Performs trapezoidal integration for the PID controller.
+ * @brief Performs trapezoidal integration for the PID controller.(梯形积分)
  *
  * This function calculates the integral term of the PID controller using the
  * trapezoidal integration method.
@@ -93,7 +93,7 @@ void Pid::TrapezoidIntergral() {
 }
 
 /**
- * @brief Changes the integration rate for the PID controller.
+ * @brief Changes the integration rate for the PID controller.(变速率积分)
  */
 void Pid::ChangingIntegratioRate() {
   if (err_ * i_out_ > 0) {
@@ -109,7 +109,7 @@ void Pid::ChangingIntegratioRate() {
 }
 
 /**
- * @brief Limits the integral term of the PID controller.
+ * @brief Limits the integral term of the PID controller.积分限幅
  */
 void Pid::IntegralLimit() {
   static float temp_output, temp_i_out;
@@ -133,7 +133,7 @@ void Pid::IntegralLimit() {
 
 /**
  * @brief Applies the derivative on measurement control strategy in the PID
- * algorithm.
+ * algorithm.(测量微分)
  *
  * This function calculates the derivative term of the PID controller based on
  * the rate of change of the process variable. The derivative term is subtracted
@@ -147,7 +147,7 @@ void Pid::DerivativeOnMeasurement() {
 }
 
 /**
- * @brief Applies a derivative filter to the PID controller.
+ * @brief Applies a derivative filter to the PID controller.D项低通滤波
  *
  * This function applies a derivative filter to the PID controller.
  * It is used to calculate the derivative term of the PID controller
@@ -159,7 +159,7 @@ void Pid::DerivativeFilter() {
 }
 
 /**
- * @brief Applies the output filter to the PID controller's output.
+ * @brief Applies the output filter to the PID controller's output.输出滤波
  *
  * This function is responsible for applying the output filter to the PID
  * controller's output. It performs any necessary calculations or
@@ -173,7 +173,7 @@ void Pid::OutputFilter() {
 }
 
 /**
- * @brief Sets the output limit for the PID controller.
+ * @brief Sets the output limit for the PID controller.输出限幅
  */
 void Pid::OutputLimit() {
   if (output_ > max_out_) {

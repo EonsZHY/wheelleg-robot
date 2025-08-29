@@ -4,12 +4,14 @@
 #include "lqr.h"
 #include "pid.h"
 #include "vmc.h"
-
+#include "tpid.h"
 #include "kalman_filter.h"
 #include "M6020_Motor.h"
 #include "M3508.h"
 #include "DM_8009P.h"
 #include "dji_motor.h"
+#include "GM6020.h"
+#include "motor_pid.h"
 
 #define RAD_2_DEGREE 57.2957795f     // 180/pi
 #define DEGREE_2_RAD 0.01745329252f  // pi/180
@@ -69,7 +71,7 @@ class balance_Chassis
 		Vmc left_leg_, right_leg_;
 		KalmanFilter_t kf,kf_l,kf_r;
 		Lqr lqr_body_;
-		Pid left_leg_len_, right_leg_len_, anti_crash_,roll_comp_, left_leg_phi0, right_leg_phi0;
+		Pid left_leg_len_, right_leg_len_, anti_crash_,roll_comp_, left_leg_phi0, right_leg_phi0;   
 		void motor_test_init();
 	  float MotorAngle();
 		void LegCalc();

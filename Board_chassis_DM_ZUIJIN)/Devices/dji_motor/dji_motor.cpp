@@ -16,13 +16,9 @@
 FDCAN_HandleTypeDef *Class_Motor_3508::Can_Motor = &hfdcan3; //绑定CAN总线
 
 // 大疆电机CAN通信发送缓冲区
-uint8_t CAN1_0x1ff_Tx_Data[8];
-uint8_t CAN1_0x200_Tx_Data[8];
-uint8_t CAN1_0x2ff_Tx_Data[8];
-
-uint8_t CAN2_0x1ff_Tx_Data[8];
-uint8_t CAN2_0x200_Tx_Data[8];
-uint8_t CAN2_0x2ff_Tx_Data[8];
+uint8_t CAN3_0x1ff_Tx_Data[8];
+uint8_t CAN3_0x200_Tx_Data[8];
+uint8_t CAN3_0x2ff_Tx_Data[8];
 
 uint8_t CAN_Supercap_Tx_Data[8];
 /**
@@ -41,57 +37,57 @@ uint8_t *allocate_tx_data(FDCAN_HandleTypeDef *hcan, Enum_CAN_Motor_ID __CAN_ID)
         {
         case (CAN_Motor_ID_0x201):
         {
-            tmp_tx_data_ptr = &(CAN1_0x200_Tx_Data[0]);
+            tmp_tx_data_ptr = &(CAN3_0x200_Tx_Data[0]);
         }
         break;
         case (CAN_Motor_ID_0x202):
         {
-            tmp_tx_data_ptr = &(CAN1_0x200_Tx_Data[2]);
+            tmp_tx_data_ptr = &(CAN3_0x200_Tx_Data[2]);
         }
         break;
         case (CAN_Motor_ID_0x203):
         {
-            tmp_tx_data_ptr = &(CAN1_0x200_Tx_Data[4]);
+            tmp_tx_data_ptr = &(CAN3_0x200_Tx_Data[4]);
         }
         break;
         case (CAN_Motor_ID_0x204):
         {
-            tmp_tx_data_ptr = &(CAN1_0x200_Tx_Data[6]);
+            tmp_tx_data_ptr = &(CAN3_0x200_Tx_Data[6]);
         }
         break;
         case (CAN_Motor_ID_0x205):
         {
-            tmp_tx_data_ptr = &(CAN1_0x1ff_Tx_Data[0]);
+            tmp_tx_data_ptr = &(CAN3_0x1ff_Tx_Data[0]);
         }
         break;
         case (CAN_Motor_ID_0x206):
         {
-            tmp_tx_data_ptr = &(CAN1_0x1ff_Tx_Data[2]);
+            tmp_tx_data_ptr = &(CAN3_0x1ff_Tx_Data[2]);
         }
         break;
         case (CAN_Motor_ID_0x207):
         {
-            tmp_tx_data_ptr = &(CAN1_0x1ff_Tx_Data[4]);
+            tmp_tx_data_ptr = &(CAN3_0x1ff_Tx_Data[4]);
         }
         break;
         case (CAN_Motor_ID_0x208):
         {
-            tmp_tx_data_ptr = &(CAN1_0x1ff_Tx_Data[6]);
+            tmp_tx_data_ptr = &(CAN3_0x1ff_Tx_Data[6]);
         }
         break;
         case (CAN_Motor_ID_0x209):
         {
-            tmp_tx_data_ptr = &(CAN1_0x2ff_Tx_Data[0]);
+            tmp_tx_data_ptr = &(CAN3_0x2ff_Tx_Data[0]);
         }
         break;
         case (CAN_Motor_ID_0x20A):
         {
-            tmp_tx_data_ptr = &(CAN1_0x2ff_Tx_Data[2]);
+            tmp_tx_data_ptr = &(CAN3_0x2ff_Tx_Data[2]);
         }
         break;
         case (CAN_Motor_ID_0x20B):
         {
-            tmp_tx_data_ptr = &(CAN1_0x2ff_Tx_Data[4]);
+            tmp_tx_data_ptr = &(CAN3_0x2ff_Tx_Data[4]);
         }
         break;
 		default:
@@ -321,7 +317,7 @@ void Class_Motor_3508::Set_Target_Torque(float __Target_Torque)
 /**
  * @brief 设定输出量
  *
- * @param __Output_Voltage 输出量
+ * @param __Output_Current 输出量
  */
 void Class_Motor_3508::Set_Out(float __Out)
 {
@@ -335,9 +331,7 @@ void Class_Motor_3508::Set_Out(float __Out)
   */
 void Class_Motor_3508::Set_Current()
 {
-
-
-    Can_Fun.fdcanx_send_data(Can_Motor, M3508_SENDID_Chassis,CAN1_0x200_Tx_Data, 8);
+    Can_Fun.fdcanx_send_data(Can_Motor, M3508_SENDID_Chassis,CAN3_0x200_Tx_Data, 8);
 }
 
 void Class_Motor_3508::Calc_Current()

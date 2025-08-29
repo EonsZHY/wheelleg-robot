@@ -76,7 +76,9 @@ void balance_Chassis::StatusInit()
  * @param 
  * @param
  */
-void balance_Chassis::PidInit() {
+void balance_Chassis::PidInit() 
+{
+  //腿长PID，防劈叉PID，roll PID初始化
   left_leg_len_.Init(300.0f, 0.0f,10.0f, 200.0f, 0.001f);
   right_leg_len_.Init(300.0f, 0.0f, 10.0f,200.0f, 0.001f);
   anti_crash_.Init(60.0f, 1.0f, 4.0f, 10.0f, 0.001f);
@@ -341,18 +343,18 @@ void balance_Chassis::SetFollow()
 if (board_comm.rece_.AutoAimFlag == 1)
 {
 static float delta_aim_yaw = 0.0f;
-M6020s_Yaw.AutoAimFlag = 1;
+YAW.SetAutoAimFlag(board_comm.rece_.AutoAimFlag);
 delta_aim_yaw -= board_comm.rece_.yaw_speed * 0.006;
-M6020s_Yaw.targetAngle = board_comm.rece_.yaw_position + delta_aim_yaw + Saber_Angle.Yaw/360.0f*8192;
-if (M6020s_Yaw.targetAngle > 8192)
+YAW.SetTargetAngle(board_comm.rece_.yaw_position + delta_aim_yaw + Saber_Angle.Yaw/360.0f*8192);
+if (YAW.targetAngle > 8192)
 {
-M6020s_Yaw.targetAngle -= 8192;
+YAW.targetAngle -= 8192;
 }
-else if (M6020s_Yaw.targetAngle < 0)
+else if (YAW.targetAngle < 0)
 {
-M6020s_Yaw.targetAngle += 8192;
+YAW.targetAngle += 8192;
 }
-float delta_yaw= M6020s_Yaw.targetAngle - M6020s_Yaw.realAngle;
+float delta_yaw= YAW.targetAngle - YAW.realAngle;
 if(delta_yaw<-4096)
 delta_yaw+=8192;
 if(delta_yaw>4096)
@@ -362,23 +364,23 @@ delta_yaw-=8192;
 }
 else if (board_comm.rece_.AutoAimFlag == 0)
 {
-M6020s_Yaw.AutoAimFlag = 0;
-M6020s_Yaw.targetAngle -= board_comm.rece_.yaw_speed * 0.006f - 0* Saber_Angle.Gyro_z;
-if (M6020s_Yaw.targetAngle > 8192)
+YAW.SetAutoAimFlag(board_comm.rece_.AutoAimFlag);
+YAW.targetAngle -= board_comm.rece_.yaw_speed * 0.006f - 0* Saber_Angle.Gyro_z;
+if (YAW.targetAngle > 8192)
 {
-M6020s_Yaw.targetAngle -= 8192;
+YAW.targetAngle -= 8192;
 }
-else if (M6020s_Yaw.targetAngle < 0)
+else if (YAW.targetAngle < 0)
 {
-M6020s_Yaw.targetAngle += 8192;
+YAW.targetAngle += 8192;
 }
-float delta_yaw= M6020s_Yaw.targetAngle - M6020s_Yaw.realAngle;
+float delta_yaw= YAW.targetAngle - YAW.realAngle;
 if(delta_yaw<-4096)
 delta_yaw+=8192;
 if(delta_yaw>4096)
 delta_yaw-=8192;
-M6020s_Yaw.targetSpeed = Position_PID(&M6020s_Yaw.position_PID, 0, delta_yaw);
-M6020s_Yaw.outCurrent = Position_PID(&M6020s_Yaw.velocity_PID, M6020s_Yaw.realSpeed, M6020s_Yaw.targetSpeed);
+YAW.targetSpeed = Position_PID(&YAW.position_PID, 0, delta_yaw);
+YAW.outCurrent = Position_PID(&YAW.velocity_PID, YAW.realSpeed, YAW.targetSpeed);
 }
 }
 /**
