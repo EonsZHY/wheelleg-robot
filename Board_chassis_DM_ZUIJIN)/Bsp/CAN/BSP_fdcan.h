@@ -22,7 +22,12 @@ extern "C"{
 #include <stdio.h>
 #include <string.h>
 
+// 大疆电机CAN通信发送缓冲区
+extern uint8_t CAN3_0x1ff_Tx_Data[8];
+extern uint8_t CAN3_0x200_Tx_Data[8];
+extern uint8_t CAN3_0x2ff_Tx_Data[8];
 
+extern uint8_t CAN_Supercap_Tx_Data[8];
 
 
 

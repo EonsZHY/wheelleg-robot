@@ -27,6 +27,7 @@
  * This class provides methods for calculating leg and torso movements,
  * setting and getting various parameters, and storing internal state variables.
  */
+ #ifdef __cplusplus
 class Vmc {
  public:
   void LegCalc();
@@ -78,5 +79,5 @@ class Vmc {
 };
 /* Exported variables --------------------------------------------------------*/
 /* Exported function prototypes ----------------------------------------------*/
-
+#endif
 #endif /* __VMC_H_ */

@@ -56,7 +56,7 @@ void Class_GM6020::Init(Enum_CAN_Motor_ID __CAN_ID, Enum_Control_Method __Contro
   */
  void Class_GM6020::SetVoltage(void)
  {
-    Can_Fun.fdcanx_send_data(Can_Motor,M6020_SENDID,CAN3_0x200_Tx_Data, 8);
+    Can_Fun.fdcanx_send_data(Can_Motor,M6020_SENDID,CAN3_0x1ff_Tx_Data, 8);
  }
 
  /**
@@ -65,8 +65,8 @@ void Class_GM6020::Init(Enum_CAN_Motor_ID __CAN_ID, Enum_Control_Method __Contro
  */
 void Class_GM6020::Output()
 {
-    CAN_Tx_Data[0] = (int16_t)Out >> 8;
-    CAN_Tx_Data[1] = (int16_t)Out;
+    CAN_Tx_Data[0] = (int16_t)outCurrent >> 8;
+    CAN_Tx_Data[1] = (int16_t)outCurrent;
 }
 
 /**

@@ -1,9 +1,9 @@
 /**
  * @file Cloud.cpp
- * @author Cyx
+ * @author ZHY
  * @brief 
  * @version 0.1
- * @date 2023-08-15
+ * @date 2025-08-30
  * 
  * @copyright 
  * 
@@ -13,6 +13,18 @@
 
 Class_Cloud Cloud;
 
+float Linear=2.75f;
+float Setup_Angleoffset = -3000;
+uint8_t kk =8;
+/**
+ * @brief  云台初始化，配置参数并归位云台
+ * @param  None
+ * @retval None
+ */
+void Class_Cloud::Motor_Init(void)
+{
+	 YAW.Init( CAN_Motor_ID_0x205);
+}
 /**
  * @brief  云台初始化，配置参数并归位云台
  * @param  None
@@ -20,9 +32,16 @@ Class_Cloud Cloud;
  */
 void Class_Cloud::Cloud_Init(void)
 {
-
+	/**Yaw轴电机PID初始化**/
+        M6020s_YawIPID.Position_PIDInit(yaw_I_p, yaw_I_i, yaw_I_d, 0, 8192, 30000, 10000 , 6000);
+		M6020s_YawOPID.Position_PIDInit(yaw_O_p, yaw_O_i, yaw_O_d, 0, 8192, 30000, 10000 , 10000);
+		    /**AimYaw电机PID初始化*/
+		AutoAim_M6020s_YawIPID.Position_PIDInit(yaw_I_Aim_p, yaw_I_Aim_i, yaw_I_Aim_d, yaw_I_Aim_f, 8192, 30000, 10000 , 10000);
+		AutoAim_M6020s_YawOPID.Position_PIDInit(yaw_O_Aim_p, yaw_O_Aim_i, yaw_O_Aim_d, yaw_O_Aim_f, 8192, 30000, 10000 , 10000);
+		//拨弹盘电机PID初始化
+		M2006s.Incremental_PIDInit( 20.0f, 0.22f, 0, 8192, 16384, 6000);
 	//保存启动时刻的机械角度
-	Target_Yaw = YAW.realAngle + AHRSData_Packet.Heading /(2*pi) *  8192.0f;
+	Target_Yaw = YAW.realAngle + INS.Yaw /(2*pi) *  8192.0f;
     //卡尔曼滤波器初始化 
     float F[1] = {1};
     float Q[1] = {1};//状态变量过程噪声矩阵
@@ -36,8 +55,8 @@ void Class_Cloud::Cloud_Init(void)
     memcpy(Cloud_YawMotorAngle_Error_Kalman.F_data, F, sizeof(F));
     memcpy(Cloud_YawMotorAngle_Error_Kalman.Q_data, Q, sizeof(Q));
     memcpy(Cloud_YawMotorAngle_Error_Kalman.R_data, R, sizeof(R));
-    memcpy(Cloud_YawMotorAngle_Error_Kalman, P, sizeof(P));
-    memcpy(Cloud_YawMotorAngle_Error_Kalman, H, sizeof(H));
+    memcpy(Cloud_YawMotorAngle_Error_Kalman.P_data, P, sizeof(P));
+    memcpy(Cloud_YawMotorAngle_Error_Kalman.H_data, H, sizeof(H));
 
     
     memcpy(Cloud_YAWODKalman.F_data, F, sizeof(F));
@@ -46,7 +65,7 @@ void Class_Cloud::Cloud_Init(void)
     memcpy(Cloud_YAWODKalman.P_data, P, sizeof(P));
     memcpy(Cloud_YAWODKalman.H_data, H, sizeof(H));
 
-    float R[1] = {6};//测量噪声矩阵
+     R[0] = 6;//测量噪声矩阵
     memcpy(Cloud_YawCurrent_Kalman.F_data, F, sizeof(F));
     memcpy(Cloud_YawCurrent_Kalman.Q_data, Q, sizeof(Q));
     memcpy(Cloud_YawCurrent_Kalman.R_data, R, sizeof(R));
@@ -69,8 +88,11 @@ void Class_Cloud::Cloud_Init(void)
   */
 void Class_Cloud::PID_Clear_Yaw(void)
 {
-	YAW.Clear_PositionPIDData();
-	YAW.Clear_PositionPIDData();
+	M6020s_YawIPID.Clear_PositionPIDData();
+	M6020s_YawOPID.Clear_PositionPIDData();
+	M6020s_Yaw_SpeedPID.Clear_PositionPIDData();
+	AutoAim_M6020s_YawIPID.Clear_PositionPIDData();
+	AutoAim_M6020s_YawOPID.Clear_PositionPIDData();
 }
 
 /**
@@ -98,7 +120,7 @@ void Class_Cloud::Cloud_Yaw_Angle_Set(void)
 	}
 
 	/**************************Yaw轴电机控制，遥控器数据映射到位置角度*****************/
-	float Angle_Yaw_Chassis = AHRSData_Packet.Heading /(2.0f*pi) *  8192.0f ;/* 8192/360*/  //世界坐标系下的底盘yaw轴角度（转化为0-8191）
+	float Angle_Yaw_Chassis = INS.Yaw /(2.0f*pi) *  8192.0f ;/* 8192/360*/  //世界坐标系下的底盘yaw轴角度（转化为0-8191）
 	float Angle_Yaw_Cloud = YAW.realAngle + Angle_Yaw_Chassis;	          //世界坐标系下的云台yaw轴角度（底盘角度+yaw轴电机角度）
 	/*Angle_Yaw_Cloud值为-4096 ~ 8192+4096，Target为 0 ~ 8191，第一次调整Angle_Yaw_Cloud为 -4096 ~ 4096 */
 	/*解决跨圈问题*/
@@ -110,11 +132,11 @@ void Class_Cloud::Cloud_Yaw_Angle_Set(void)
 	{
 		Angle_Yaw_Cloud += 8192 ;
 	}
-	ControlMes.yaw_realAngle = Angle_Yaw_Cloud;
+	ControlMes.send_.yaw_realAngle = Angle_Yaw_Cloud;
 	
 	//Gimbal_Chassis_Pitch_Translate();    //云台相对底盘pitch轴角度赋值函数
 	
-	float Delta_Yaw = Angle_Yaw_Cloud - Target_Yaw + Linear*Saber_Angle.Z_Vel /*补偿saber传输yaw轴姿态角的滞后性*/  ;
+	float Delta_Yaw = Angle_Yaw_Cloud - Target_Yaw + Linear*INS.YawSpeed /*补偿saber传输yaw轴姿态角的滞后性*/  ;
 	
 	
 	/*Derta的值 -4096-8191 ~ 4096 + 8191*/
@@ -130,7 +152,7 @@ void Class_Cloud::Cloud_Yaw_Angle_Set(void)
 
 	/*外环、内环，目标角度差，计算电流并滤波*/ /*Target_xxx为控制值*/
 
-	if(ControlMes.AutoAimFlag==0)
+	if(ControlMes.rece_.AutoAimFlag==0)
 	{
 					/*死区*/
 			if(Delta_Yaw < 5 && Delta_Yaw > -5)
@@ -138,26 +160,48 @@ void Class_Cloud::Cloud_Yaw_Angle_Set(void)
 				Delta_Yaw = 0;
 			}
 			/*角度差值滤波*/
-		  Delta_Yaw = One_Kalman_Filter(&Cloud_YawMotorAngle_Error_Kalman, Delta_Yaw);
+		//   Delta_Yaw = One_Kalman_Filter(&Cloud_YawMotorAngle_Error_Kalman, Delta_Yaw);
+  		Cloud_YawMotorAngle_Error_Kalman.MeasuredVector[0] = Delta_Yaw;
+  		Cloud_YawMotorAngle_Error_Kalman.F_data[0] = 1;  // 更新F矩阵
+  		Kalman_Filter_Update(&Cloud_YawMotorAngle_Error_Kalman);
+  		Delta_Yaw = Cloud_YawMotorAngle_Error_Kalman.xhat_data[0];
 			if( time >= kk )
 			{
-				YAW.targetSpeed = Position_PID(&M6020s_YawOPID,  0 ,Delta_Yaw);	
+				M6020s_YawOPID.SetTarget(0);
+				M6020s_YawOPID.SetMeasured(Delta_Yaw);
+				M6020s_YawOPID.Position_PID();
+				YAW.targetSpeed = M6020s_YawOPID.Output();	
 				time = 0;
 			}
-			YAW.outCurrent = Position_PID_Yaw(&M6020s_YawIPID, &FuzzyPID_Yaw, M6020s_Yaw.targetSpeed, M6020s_Yaw.realSpeed);
-			YAW.outCurrent = One_Kalman_Filter(&Cloud_YawCurrent_Kalman_manul, M6020s_Yaw.outCurrent);
+			M6020s_YawIPID.SetTarget(YAW.targetSpeed);
+			M6020s_YawIPID.SetMeasured(YAW.realSpeed);
+			M6020s_YawIPID.Position_PID_Yaw(&FuzzyPID_Yaw);
+			YAW.outCurrent = M6020s_YawIPID.Output();
+			Cloud_YawCurrent_Kalman_manul.MeasuredVector[0] = YAW.outCurrent;
+  		    Cloud_YawMotorAngle_Error_Kalman.F_data[0] = 1;  // 更新F矩阵
+  		    Kalman_Filter_Update(&Cloud_YawMotorAngle_Error_Kalman);
+  		    YAW.outCurrent = Cloud_YawMotorAngle_Error_Kalman.xhat_data[0];
 			time ++;
 	}
-	else if(ControlMes.AutoAimFlag == 1)
+	else if(ControlMes.rece_.AutoAimFlag == 1)
 	{
 			/*死区*/
 		if(Delta_Yaw < 10 && Delta_Yaw > -10)
 		{
 			Delta_Yaw = 0;
 		}
-		YAW.targetSpeed = Position_PID(&AutoAim_M6020s_YawOPID,  0 ,Delta_Yaw);	
-        YAW.outCurrent = Position_PID_Yaw(&AutoAim_M6020s_YawIPID, &FuzzyPID_AimYaw, M6020s_Yaw.targetSpeed, M6020s_Yaw.realSpeed);
-		YAW.outCurrent = One_Kalman_Filter(&Cloud_YawCurrent_Kalman, M6020s_Yaw.outCurrent);
+		AutoAim_M6020s_YawOPID.SetTarget(0);
+		AutoAim_M6020s_YawOPID.SetMeasured(Delta_Yaw);
+		AutoAim_M6020s_YawOPID.Position_PID();
+		YAW.targetSpeed = AutoAim_M6020s_YawOPID.Output();
+		AutoAim_M6020s_YawIPID.SetTarget(YAW.targetSpeed);
+		AutoAim_M6020s_YawIPID.SetMeasured(YAW.realSpeed);
+		AutoAim_M6020s_YawIPID.Position_PID_Yaw(&FuzzyPID_Yaw);
+		YAW.outCurrent = AutoAim_M6020s_YawIPID.Output();
+		Cloud_YawCurrent_Kalman_manul.MeasuredVector[0] = YAW.outCurrent;
+  		Cloud_YawMotorAngle_Error_Kalman.F_data[0] = 1;  // 更新F矩阵
+  		Kalman_Filter_Update(&Cloud_YawMotorAngle_Error_Kalman);
+  		YAW.outCurrent = Cloud_YawMotorAngle_Error_Kalman.xhat_data[0];
 	}
 }
 
@@ -176,7 +220,7 @@ void Class_Cloud::Cloud_Sport_Out(void)
 			YAW.InfoUpdateFrame = 0;
 			return;
 		}
-		else if(M6020s_Yaw.InfoUpdateFlag == 1)
+		else if(YAW.InfoUpdateFlag == 1)
 		{
 			Cloud_Yaw_Angle_Set();
 		}
@@ -188,8 +232,8 @@ void Class_Cloud::Cloud_Sport_Out(void)
 	uint8_t data[8] = {0};
 	
 	 /**********传递Yaw编码器数值**********/
-	  float Angle_Cloud = M6020s_Yaw.realAngle;
-		Angle_Cloud = M6020s_Yaw.realAngle +Setup_Angleoffset;
+	  float Angle_Cloud = YAW.GetRealAngle();
+		Angle_Cloud = YAW.GetRealAngle() +Setup_Angleoffset;
 		if(Angle_Cloud > 4096)
 		{
 			Angle_Cloud -= 8192;
@@ -198,9 +242,9 @@ void Class_Cloud::Cloud_Sport_Out(void)
 		{
 			Angle_Cloud += 8192;
 		}
-	 steer_getangle(-1*Angle_Cloud/8192.0f*360);
+	 chassis.getangle(-1*Angle_Cloud/8192.0f*360);
 
 	/***************************将电流参数发送给电机*******************************/
-	YAW.M6020_setVoltage(M6020s_Yaw.outCurrent, 0, 0, 0, data);
-	Can_Fun.CAN_SendData(CAN_SendHandle, &hcan1, CAN_ID_STD, M6020_SENDID, data);
+	YAW.Output();
+	YAW.SetVoltage();
 }

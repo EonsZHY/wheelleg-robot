@@ -88,5 +88,6 @@ legwheel/chassis.o: ..\Applications\Chassis.cpp ..\Applications\Chassis.h \
   ..\Algorithm\inc\motor_pid.h ..\Algorithm\inc\FuzzyPID.h \
   ..\Applications\ins.h ..\Devices\Saber_C3\Saber_C3.h \
   ..\Core\Inc\main.h ..\Core\Inc\usart.h ..\Bsp\DWT\bsp_dwt.h \
-  ..\Applications\board_comm.h ..\Bsp\CAN\Bsp_fdcan.h \
-  ..\Devices\SBUS\SBUS.h
+  ..\Applications\board_comm.h ..\Applications\Cloud.h \
+  ..\Algorithm\inc\FuzzyPID.h ..\Devices\M2006\M2006.h \
+  ..\Devices\N100\N100.h ..\Devices\SBUS\SBUS.h

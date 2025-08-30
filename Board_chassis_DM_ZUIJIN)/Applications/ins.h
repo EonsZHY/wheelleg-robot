@@ -53,7 +53,7 @@ typedef struct
     float Pitch;
     float Yaw;
     float YawTotalAngle;
-
+    float YawSpeed;
     float time;
 
     float flag;

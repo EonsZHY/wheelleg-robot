@@ -13,6 +13,8 @@ extern void ChassisCalcTask();
 extern void boardCommunicateTask();
 extern void vofaTask();
 extern void ChassisInit();
+extern void CloudInit();
+extern void Cloud_ControlTask();
 #ifdef __cplusplus
 }
 #endif

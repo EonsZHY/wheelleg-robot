@@ -27,20 +27,21 @@ typedef enum
 	pid_control_frontfuzzy,
 	pid_control_angle  // 舵轮舵向电机专用PID(解决就近转位问题)
 }pid_control;
-
+#ifdef __cplusplus
 class Class_MotorPid
 {
 public:
     void Incremental_PID();
     void Position_PID();
     void Angle_PID();
-    void Incremental_PIDInit(float _Kp, float _Ki, float _Kd, float _ecd_max, uint32_t _MaxOutput, uint32_t _IntegralLimit);
+    void Incremental_PIDInit(float _Kp, float _Kd, float _Ki, float _ecd_max, uint32_t _MaxOutput, uint32_t _IntegralLimit);
     void Position_PIDInit(float _Kp, float _Ki, float _Kd, float _Kf, float _ecd_max, float _MaxOutput, float _Integral_Separation, float _IntegralLimit);
     void Clear_PositionPIDData();
     void Clear_IncrementalPIDData();
     void Position_PID_Yaw(FUZZYPID_Data_t *fuzzy_t);
     void SetTarget(float _target);
     void SetMeasured(float _measured);
+    float Output(){return pwm;}
 private:
     float Target;     //目标值
     float Measured;   //测量值
@@ -70,5 +71,5 @@ private:
 };
 
 
-
+#endif
 #endif

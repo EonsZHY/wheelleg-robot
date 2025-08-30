@@ -49,7 +49,7 @@ void balance_Chassis::MotorInit()
   rf_joint_.Init(&hfdcan1,0x03,0x03,Motor_DM_Control_Method_NORMAL_MIT,P_MAX,V_MAX,T_MAX,I_MAX);
   rb_joint_.Init(&hfdcan1,0x04,0x04,Motor_DM_Control_Method_NORMAL_MIT,P_MAX,V_MAX,T_MAX,I_MAX);
   left_wheel.Init(CAN_Motor_ID_0x201,Control_Method_TORQUE);
-  right_wheel.Init(CAN_Motor_ID_0x201,Control_Method_TORQUE);
+  right_wheel.Init(CAN_Motor_ID_0x202,Control_Method_TORQUE);
   //设置电机零点位置，只在需要重新设置零点时使用
   // lf_joint_.Save_Pos_Zero();
   // lb_joint_.Save_Pos_Zero();
@@ -338,51 +338,51 @@ right_leg_len_.SetRef(target_len_);
  * @param 
  * @param
  */
-void balance_Chassis::SetFollow()
-{
-if (board_comm.rece_.AutoAimFlag == 1)
-{
-static float delta_aim_yaw = 0.0f;
-YAW.SetAutoAimFlag(board_comm.rece_.AutoAimFlag);
-delta_aim_yaw -= board_comm.rece_.yaw_speed * 0.006;
-YAW.SetTargetAngle(board_comm.rece_.yaw_position + delta_aim_yaw + Saber_Angle.Yaw/360.0f*8192);
-if (YAW.targetAngle > 8192)
-{
-YAW.targetAngle -= 8192;
-}
-else if (YAW.targetAngle < 0)
-{
-YAW.targetAngle += 8192;
-}
-float delta_yaw= YAW.targetAngle - YAW.realAngle;
-if(delta_yaw<-4096)
-delta_yaw+=8192;
-if(delta_yaw>4096)
-delta_yaw-=8192;
-//M6020s_Yaw.targetSpeed = Position_PID(&M6020s_Yaw.Aim_position_PID, 0, delta_yaw);
-//M6020s_Yaw.outCurrent = Position_PID(&M6020s_Yaw.Aim_position_PID, M6020s_Yaw.realSpeed, M6020s_Yaw.targetSpeed);
-}
-else if (board_comm.rece_.AutoAimFlag == 0)
-{
-YAW.SetAutoAimFlag(board_comm.rece_.AutoAimFlag);
-YAW.targetAngle -= board_comm.rece_.yaw_speed * 0.006f - 0* Saber_Angle.Gyro_z;
-if (YAW.targetAngle > 8192)
-{
-YAW.targetAngle -= 8192;
-}
-else if (YAW.targetAngle < 0)
-{
-YAW.targetAngle += 8192;
-}
-float delta_yaw= YAW.targetAngle - YAW.realAngle;
-if(delta_yaw<-4096)
-delta_yaw+=8192;
-if(delta_yaw>4096)
-delta_yaw-=8192;
-YAW.targetSpeed = Position_PID(&YAW.position_PID, 0, delta_yaw);
-YAW.outCurrent = Position_PID(&YAW.velocity_PID, YAW.realSpeed, YAW.targetSpeed);
-}
-}
+//void balance_Chassis::SetFollow()
+//{
+//if (board_comm.rece_.AutoAimFlag == 1)
+//{
+//static float delta_aim_yaw = 0.0f;
+//YAW.SetAutoAimFlag(board_comm.rece_.AutoAimFlag);
+//delta_aim_yaw -= board_comm.rece_.yaw_speed * 0.006;
+//YAW.SetTargetAngle(board_comm.rece_.yaw_position + delta_aim_yaw + Saber_Angle.Yaw/360.0f*8192);
+//if (YAW.targetAngle > 8192)
+//{
+//YAW.targetAngle -= 8192;
+//}
+//else if (YAW.targetAngle < 0)
+//{
+//YAW.targetAngle += 8192;
+//}
+//float delta_yaw= YAW.targetAngle - YAW.realAngle;
+//if(delta_yaw<-4096)
+//delta_yaw+=8192;
+//if(delta_yaw>4096)
+//delta_yaw-=8192;
+////M6020s_Yaw.targetSpeed = Position_PID(&M6020s_Yaw.Aim_position_PID, 0, delta_yaw);
+////M6020s_Yaw.outCurrent = Position_PID(&M6020s_Yaw.Aim_position_PID, M6020s_Yaw.realSpeed, M6020s_Yaw.targetSpeed);
+//}
+//else if (board_comm.rece_.AutoAimFlag == 0)
+//{
+//YAW.SetAutoAimFlag(board_comm.rece_.AutoAimFlag);
+//YAW.targetAngle -= board_comm.rece_.yaw_speed * 0.006f - 0* Saber_Angle.Gyro_z;
+//if (YAW.targetAngle > 8192)
+//{
+//YAW.targetAngle -= 8192;
+//}
+//else if (YAW.targetAngle < 0)
+//{
+//YAW.targetAngle += 8192;
+//}
+//float delta_yaw= YAW.targetAngle - YAW.realAngle;
+//if(delta_yaw<-4096)
+//delta_yaw+=8192;
+//if(delta_yaw>4096)
+//delta_yaw-=8192;
+//YAW.targetSpeed = Position_PID(&YAW.position_PID, 0, delta_yaw);
+//YAW.outCurrent = Position_PID(&YAW.velocity_PID, YAW.realSpeed, YAW.targetSpeed);
+//}
+//}
 /**
  * @brief 设置速度
  * @param 
@@ -409,7 +409,7 @@ void balance_Chassis::SetState() {
   {
     SetLegLen();
     SetSpd();
-    SetFollow();
+    //SetFollow();
   }
 	// if(jump_cnt==0&&sbusrev.jump_flag==1)
 	// {
@@ -672,6 +672,10 @@ void balance_Chassis::JumpCalc()
 
     }
     
+}
+void balance_Chassis::getangle(float angle)
+{
+  Angle_ChassisToCloud = angle;
 }
 // 实现C接口函数
 extern "C" {

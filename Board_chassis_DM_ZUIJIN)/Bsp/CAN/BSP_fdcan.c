@@ -14,9 +14,15 @@
 #include "DM_8009P.h"
 #include "M3508.h"
 #include "Chassis.h"
+#include "Cloud.h"
 //#include "Extern_Handles.h"
 
+// 大疆电机CAN通信发送缓冲区
+uint8_t CAN3_0x1ff_Tx_Data[8];
+uint8_t CAN3_0x200_Tx_Data[8];
+uint8_t CAN3_0x2ff_Tx_Data[8];
 
+uint8_t CAN_Supercap_Tx_Data[8];
 
 
 void can_bsp_init(void);
@@ -133,8 +139,14 @@ uint8_t fdcanx_receive(FDCAN_HandleTypeDef *hfdcan)
 	FDCan_Export_Data_t FDCan_Export_Data;
   if(HAL_FDCAN_GetRxMessage(hfdcan,FDCAN_RX_FIFO0, &FDCan_Export_Data.fdcan_RxHeader, FDCan_Export_Data.FDCANx_Export_RxMessage)==HAL_OK)
 	{
-		if( FDCan_Export_Data.fdcan_RxHeader.Identifier ==0x10f||FDCan_Export_Data.fdcan_RxHeader.Identifier ==0x11f )
-			BoardCommReceive(&board_comm,FDCan_Export_Data);
+		if( FDCan_Export_Data.fdcan_RxHeader.Identifier == CAN_ID_CHASSIS )
+		{
+			Board2_FUN.Board2_getChassisInfo(FDCan_Export_Data);
+		}
+		if(FDCan_Export_Data.fdcan_RxHeader.Identifier == CAN_ID_GIMBAL )
+		{
+			Board2_FUN.Board2_getGimbalInfo(FDCan_Export_Data);
+		}
 		return FDCan_Export_Data.fdcan_RxHeader.DataLength;//接收数据
 				
 	}
@@ -159,13 +171,17 @@ uint8_t fdcanx_receive(FDCAN_HandleTypeDef *hfdcan)
     				Count = (int32_t)(FDCan_Export_Data.fdcan_RxHeader.Identifier- M3508_READID_START);
 					switch (Count)
 					{
-					case 1:
+					case 0:
 						chassis.left_wheel.FDCAN_RxCpltCallback(FDCan_Export_Data);
 						return FDCan_Export_Data.fdcan_RxHeader.DataLength;
 						break;
 					
-					case 2:
+					case 1:
 						chassis.right_wheel.FDCAN_RxCpltCallback(FDCan_Export_Data);
+						return FDCan_Export_Data.fdcan_RxHeader.DataLength;
+						break;
+					case 4:
+						Cloud.YAW.FDCAN_RxCpltCallback(FDCan_Export_Data);
 						return FDCan_Export_Data.fdcan_RxHeader.DataLength;
 						break;
 					}

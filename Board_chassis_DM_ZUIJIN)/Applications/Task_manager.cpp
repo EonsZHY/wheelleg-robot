@@ -8,6 +8,7 @@
 #include "M3508.h"
 #include "vofa.h"
 #include "SBUS.h"
+#include "Cloud.h"
 /**DEBUG**/
 float joint_pos;
 /**DEBUG**/
@@ -21,8 +22,7 @@ float joint_pos;
 void motor_init()
 {
 	chassis.MotorInit();
-	chassis.PidInit();
-chassis.SpeedEstInit();
+    Cloud.Motor_Init();
 }
 
 // /**
@@ -49,7 +49,29 @@ chassis.SpeedEstInit();
  */
  void ChassisInit()
  {
-	 chassis.StatusInit();
+	chassis.PidInit();
+    chassis.SpeedEstInit();
+	chassis.StatusInit();
+ }
+ /**
+ * @brief 云台部分初始化
+ * @param 
+ * @param 
+ * @param
+ */
+ void CloudInit()
+ {
+	 Cloud.Cloud_Init();
+ }
+  /**
+ * @brief 云台控制指令下发
+ * @param 
+ * @param 
+ * @param
+ */
+ void Cloud_ControlTask()
+ {
+	 Cloud.Cloud_Sport_Out();
  }
 /**
  * @brief 达妙电机控制指令下发
@@ -73,10 +95,6 @@ void DM_MotorTask()
 
 
 
-
-
-
-
 /**
  * @brief 轮毂电机控制指令下发
  * @param 
@@ -88,11 +106,6 @@ void WheelMotorTask() {
 	chassis.left_wheel.Output();
 	chassis.right_wheel.Output();
 	Class_Motor_3508::Set_Current();
-}
-
-void YawMotorTask()
-{
-	chassis.YAW.SetVoltage();
 }
 
 /**
@@ -120,9 +133,7 @@ void ChassisCalcTask() {
  */
 void boardCommunicateTask()
 {
-	board_comm.send_.yaw_real_position=(int16_t)((chassis.YAW.realAngle+Saber_Angle.Yaw/360*8192)/2-2048) ;
-	board_comm.send_.bullet_speed=25;
-	BoardCommSend(&board_comm);
+	Board2_FUN.Board2_To_1();
 }
 /**
 * @brief 上位机查看数据

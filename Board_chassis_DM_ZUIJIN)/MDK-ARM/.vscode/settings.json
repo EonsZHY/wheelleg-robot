@@ -8,7 +8,9 @@
         "tpid.h": "c",
         "bsp_uart.h": "c",
         "cmath": "c",
-        "cstdlib": "c"
+        "cstdlib": "c",
+        "__nullptr": "cpp",
+        "type_traits": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

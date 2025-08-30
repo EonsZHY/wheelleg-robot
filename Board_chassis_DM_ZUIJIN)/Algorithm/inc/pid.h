@@ -57,7 +57,7 @@ typedef struct {
   uint64_t ERRORCount;
   ErrorType ERRORType;
 } PidErrorHandler;
-
+#ifdef __cplusplus
 /* Exported types ------------------------------------------------------------*/
 class Pid {
  public:
@@ -122,5 +122,5 @@ class Pid {
 };
 /* Exported variables --------------------------------------------------------*/
 /* Exported function prototypes ----------------------------------------------*/
-
+#endif
 #endif /* __PID_H_ */

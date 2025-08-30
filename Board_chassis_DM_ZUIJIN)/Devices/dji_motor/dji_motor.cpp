@@ -16,11 +16,11 @@
 FDCAN_HandleTypeDef *Class_Motor_3508::Can_Motor = &hfdcan3; //绑定CAN总线
 
 // 大疆电机CAN通信发送缓冲区
-uint8_t CAN3_0x1ff_Tx_Data[8];
-uint8_t CAN3_0x200_Tx_Data[8];
-uint8_t CAN3_0x2ff_Tx_Data[8];
+extern uint8_t CAN3_0x1ff_Tx_Data[8];
+extern uint8_t CAN3_0x200_Tx_Data[8];
+extern uint8_t CAN3_0x2ff_Tx_Data[8];
 
-uint8_t CAN_Supercap_Tx_Data[8];
+extern uint8_t CAN_Supercap_Tx_Data[8];
 /**
  * @brief 分配CAN发送缓冲区
  *

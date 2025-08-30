@@ -74,16 +74,20 @@ legwheel/bsp_fdcan.o: ..\Bsp\CAN\BSP_fdcan.c ..\Bsp\CAN\BSP_fdcan.h \
   ..\Devices\M6020\M6020_Motor.h ..\Devices\tpid\tpid.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\libcxx\stdbool.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stdbool.h \
-  ..\Bsp\CAN\BSP_fdcan.h ..\Applications\board_comm.h \
-  ..\Bsp\CAN\Bsp_fdcan.h ..\Devices\DM8009P\DM_8009P.h \
-  ..\Devices\M3508\M3508.h ..\Applications\Chassis.h \
-  ..\Algorithm\inc\lqr.h ..\Algorithm\inc\pid.h \
+  ..\Bsp\CAN\BSP_fdcan.h ..\Applications\board_comm.h ..\Core\Inc\main.h \
+  ..\Applications\Cloud.h ..\Algorithm\inc\FuzzyPID.h \
+  ..\Applications\board_comm.h ..\Algorithm\inc\kalman_filter.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\libcxx\float.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\float.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\libcxx\limits.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\limits.h \
-  ..\Algorithm\inc\vmc.h ..\Algorithm\inc\kalman_filter.h \
-  ..\Devices\dji_motor\dji_motor.h ..\Devices\GM6020\GM6020.h \
-  ..\Algorithm\inc\motor_pid.h ..\Algorithm\inc\FuzzyPID.h
+  ..\Algorithm\inc\motor_pid.h ..\Algorithm\inc\FuzzyPID.h \
+  ..\Devices\GM6020\GM6020.h ..\Devices\dji_motor\dji_motor.h \
+  ..\Applications\ins.h ..\Devices\Saber_C3\Saber_C3.h \
+  ..\Core\Inc\usart.h ..\Devices\M2006\M2006.h ..\Devices\N100\N100.h \
+  ..\Applications\Chassis.h ..\Algorithm\inc\lqr.h \
+  ..\Algorithm\inc\pid.h ..\Algorithm\inc\vmc.h ..\Devices\M3508\M3508.h \
+  ..\Devices\DM8009P\DM_8009P.h ..\Applications\Chassis.h \
+  ..\Applications\Cloud.h

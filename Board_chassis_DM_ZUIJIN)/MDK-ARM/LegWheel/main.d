@@ -56,14 +56,24 @@ legwheel/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Core\Inc\fdcan.h ..\Core\Inc\memorymap.h ..\Core\Inc\spi.h \
   ..\Core\Inc\tim.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h \
   ..\Applications\Task_manager.h ..\Applications\board_comm.h \
-  ..\Bsp\CAN\Bsp_fdcan.h \
+  ..\Bsp\CAN\BSP_fdcan.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\include\queue.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\include\task.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stdio.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\string.h \
-  D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stdlib.h ..\Bsp\DWT\bsp_dwt.h \
+  ..\Applications\Cloud.h ..\Algorithm\inc\FuzzyPID.h \
+  ..\Algorithm\inc\kalman_filter.h ..\Algorithm\inc\motor_pid.h \
+  D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stdlib.h \
+  ..\Algorithm\inc\FuzzyPID.h ..\Devices\GM6020\GM6020.h \
+  ..\Devices\tpid\tpid.h \
+  D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stdbool.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\float.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\limits.h \
-  ..\Bsp\CAN\BSP_fdcan.h ..\Devices\N100\N100.h
+  ..\Devices\dji_motor\dji_motor.h ..\Applications\ins.h \
+  ..\Devices\Saber_C3\Saber_C3.h ..\Devices\M2006\M2006.h \
+  ..\Devices\N100\N100.h ..\Applications\Chassis.h \
+  ..\Algorithm\inc\lqr.h ..\Algorithm\inc\pid.h ..\Algorithm\inc\vmc.h \
+  ..\Devices\M6020\M6020_Motor.h ..\Devices\M3508\M3508.h \
+  ..\Devices\DM8009P\DM_8009P.h ..\Bsp\DWT\bsp_dwt.h

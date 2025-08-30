@@ -16,14 +16,15 @@
 #include "BSP_fdcan.h"
 #include "Cloud.h"
 #include "N100.h"
+#include "Chassis.h"
+#include "Cloud.h"
 
+// CANï¿½ï¿½ï¿½ÄµÄ±ï¿½Ê¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý³ï¿½ï¿½ï¿½
+#define CAN_ID_CHASSIS 0x10f // ï¿½ï¿½ï¿½ï¿½CANï¿½ï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½IDÎª0x10f
+#define CAN_ID_GIMBAL  0x11f // ï¿½ï¿½Ì¨ï¿½ï¿½ï¿½ï¿½IDÎª0x11f
+#define CAN_ID_KEYCOMMAND 0x22f // Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½IDÎ»0x22f
 
-// CAN±¨ÎÄµÄ±êÊ¶·ûºÍÊý¾Ý³¤¶È
-#define CAN_ID_CHASSIS 0x10f // ¼ÙÉèCAN±¨ÎÄµ×ÅÌÊý¾ÝIDÎª0x10f
-#define CAN_ID_GIMBAL  0x11f // ÔÆÌ¨Êý¾ÝIDÎª0x11f
-#define CAN_ID_KEYCOMMAND 0x22f // Í¼´«Êó±êÊý¾ÝIDÎ»0x22f
-
-/*²Ù×÷Ä£Ê½ 0ÎªÕý³££¬1Îª¼ìÂ¼£¨×óÎªmid£¬ÓÒÎªdown£©*/
+/*ï¿½ï¿½ï¿½ï¿½Ä£Ê½ 0Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1Îªï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½Îªmidï¿½ï¿½ï¿½ï¿½Îªdownï¿½ï¿½*/
 #define model_Normal 0
 #define model_Record 1
 
@@ -35,30 +36,39 @@
 		&Board2_To_1,                 \
 	}
 
-
-// ¶¨ÒåCAN±¨ÎÄµÄ½á¹¹Ìå
 typedef struct {
     int16_t x_velocity;
     int16_t y_velocity;
     int16_t z_rotation_velocity;
-	  int16_t pitch_velocity;
-		float   yaw_velocity;
+	int16_t pitch_velocity;
+	float  yaw_velocity;
+	float len;
+	uint8_t rece_len;
+	uint8_t AutoAimFlag;         // ï¿½ï¿½ï¿½é¿ªï¿½ï¿½
+	uint8_t jump_flag;
+} rece_pack;
+
+typedef struct {
+	int16_t yaw_realAngle;      //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½Ì¨yawï¿½ï¿½Ä»ï¿½Ðµï¿½Ç¶ï¿½
+	uint8_t send_len;
+    float bullet_speed;
+	FDCAN_HandleTypeDef *boardfdcan;
+} send_pack;
+// ï¿½ï¿½ï¿½ï¿½CANï¿½ï¿½ï¿½ÄµÄ½á¹¹ï¿½ï¿½
+typedef struct {
 		uint8_t shoot_state;
-		int16_t yaw_realAngle;      //ÊÀ½ç×ø±êÏµÏÂÔÆÌ¨yawÖáµÄ»úÐµ½Ç¶È
 		uint8_t modelFlag;
 		uint8_t shoot_Speed;
-		uint8_t AutoAimFlag;         // ×ÔÃé¿ª¹Ø
-		uint8_t change_Flag;				//±äËÙ
-		uint8_t fric_Flag;					//Ä¦²ÁÂÖ
+		uint8_t change_Flag;				//ï¿½ï¿½ï¿½ï¿½
+		uint8_t fric_Flag;					//Ä¦ï¿½ï¿½ï¿½ï¿½
 		uint8_t tnndcolor;
 		int16_t Gimbal_Chassis_Pitch_Angle;
-		int8_t feipo_Flag;            //·ÉÆÂ¿ª¹Ø
+		int8_t feipo_Flag;            //ï¿½ï¿½ï¿½Â¿ï¿½ï¿½ï¿½
 		uint16_t Blood_Volume;         //???????
 		uint8_t game_start;
 		uint32_t controlid;
-		uint8_t rece_len;
-	    uint8_t send_len;
-		FDCAN_HandleTypeDef *boardfdcan
+		rece_pack rece_;
+		send_pack send_;
 } ControlMessge;
 
 extern ControlMessge ControlMes;
@@ -66,18 +76,19 @@ extern uint16_t Auto_Aim_Yaw;
 
 typedef struct
 {
-	void (*Board2_getChassisInfo)(Can_Export_Data_t RxMessage);
-	void (*Board2_getGimbalInfo)(Can_Export_Data_t RxMessage);
-	void (*Board2_To_1)(void);
+	void (*Board2_getChassisInfo)(FDCan_Export_Data_t RxMessage);
+	void (*Board2_getGimbalInfo)(FDCan_Export_Data_t RxMessage);
+	void (*Board2_To_1)();
+	void (*BoardCommInit)(FDCAN_HandleTypeDef* _phcan);
 }Board2_FUN_t;
 
-/********È«¾Ö±äÁ¿ÉùÃ÷********/
+/********È«ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½********/
 extern Board2_FUN_t Board2_FUN;
 extern ControlMessge ControlMes;
 
-/********º¯ÊýÉùÃ÷********/
-void Board2_To_1(void);
-void Board2_getChassisInfo(Can_Export_Data_t RxMessage);
-void Board2_getGimbalInfo(Can_Export_Data_t RxMessage);
-
+/********ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½********/
+void Board2_To_1(ControlMessge _ControlMes);
+void Board2_getChassisInfo(ControlMessge _ControlMes, FDCan_Export_Data_t RxMessage);
+void Board2_getGimbalInfo(ControlMessge _ControlMes, FDCan_Export_Data_t RxMessage);
+void BoardCommInit(ControlMessge _ControlMes,FDCAN_HandleTypeDef* _phcan, uint16_t _id);
 #endif

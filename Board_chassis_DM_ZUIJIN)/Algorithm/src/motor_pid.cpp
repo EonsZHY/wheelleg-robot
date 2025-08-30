@@ -117,13 +117,12 @@ void Class_MotorPid::Incremental_PID()
  * @param MaxOutput 最大输出限制
  * @param IntegralLimit 积分项限幅值
  */
-void Class_MotorPid::Incremental_PIDInit(float _Kp, float _Ki, float _Kd, float _ecd_max, uint32_t _MaxOutput, uint32_t _IntegralLimit)
+void Class_MotorPid::Incremental_PIDInit(float _Kp, float _Kd, float _Ki, float _ecd_max, uint32_t _MaxOutput, uint32_t _IntegralLimit)
 {
     // 设置PID参数
     Kp = _Kp;
     Ki = _Ki;
     Kd = _Kd;
-
     ecd_max = _ecd_max;
     
     // 设置限制参数

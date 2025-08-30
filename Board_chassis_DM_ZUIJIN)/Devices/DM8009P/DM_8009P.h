@@ -85,7 +85,7 @@ typedef struct Motor_mit
     float kd;  //位置微分系数
     float target_torq;
 }Motor_mit;  
-
+#ifdef __cplusplus
 class Class_Motor_DM_8009P
 {
 public:
@@ -126,5 +126,5 @@ private:
     // 前一时刻的电机接收flag
     uint32_t Pre_Flag = 0;
 };
-
+#endif
 #endif

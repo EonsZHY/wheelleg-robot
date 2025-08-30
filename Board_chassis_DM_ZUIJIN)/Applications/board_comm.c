@@ -12,29 +12,43 @@
 
 /********变量定义********/
 
+Board2_FUN_t Board2_FUN;
 ControlMessge ControlMes;
 
-Board2_FUN_t Board2_FUN = Board2_FunGroundInit;
+/**
+  * @brief 初始化板间通讯
+  * @param None
+  * @retval None
+  */
 
-
+void BoardCommInit(FDCAN_HandleTypeDef* _phcan)
+{
+	ControlMes.send_ = {0};
+	ControlMes.rece_ = {0};
+	ControlMes.send_.boardfdcan=_phcan;
+	ControlMes.send_.send_len=8;
+	ControlMes.rece_.rece_len=8;
+	
+	
+}
 
 /**
   * @brief 按照报文规则生成数据并发送
   * @param None
   * @retval None
   */
-void Board2_To_1(void)
+void Board2_To_1()
 {
 	int16_t bullet_speed;
 	uint8_t IT_keycommand[8]={0};
 	uint8_t data[8] = {0};
 
 	// 分别是yaw轴角度，Saber的pitch轴角度，上一发的弹速，装甲颜色
-	data[0] = ControlMes.yaw_realAngle >> 8;
-	data[1] = ControlMes.yaw_realAngle;	
+	data[0] = ControlMes.send_.yaw_realAngle >> 8;
+	data[1] = ControlMes.send_.yaw_realAngle;	
 	data[2] = ControlMes.Blood_Volume >> 8;
 	data[3] = ControlMes.Blood_Volume;
-	bullet_speed = (int16_t)(g_referee.shoot_data_.initial_speed * 1000);
+	//bullet_speed = (int16_t)(g_referee.shoot_data_.initial_speed * 1000);
 	data[4] = bullet_speed >> 8;
 	data[5] = bullet_speed;
   data[6] |= (uint8_t)(ControlMes.tnndcolor & 0x01) <<0;
@@ -53,7 +67,7 @@ void Board2_To_1(void)
 	//	IT_keycommand[7] = ext_robot_keycommand.data.right_button_down;
 	
   //数据发送
-   Can_Fun.fdcanx_send_data(ControlMes.boardfdcan,ControlMes.boardid,ControlMes.senddata, ControlMes.send_len);
+   Can_Fun.fdcanx_send_data(ControlMes.send_.boardfdcan,CAN_ID_CHASSIS,data, ControlMes.send_.send_len);
   //Can_Fun.CAN_SendData(CAN_SendHandle, &hcan2, CAN_ID_STD, CAN_ID_KEYCOMMAND, IT_keycommand);
 }
 
@@ -62,42 +76,42 @@ void Board2_To_1(void)
   * @param RxMessage 接收到的数据
   * @retval None
   */
-void Board2_getChassisInfo(Can_Export_Data_t RxMessage)
+void Board2_getChassisInfo(FDCan_Export_Data_t RxMessage)
 {
-    float vx = (int16_t)(RxMessage.CANx_Export_RxMessage[0] << 8 | RxMessage.CANx_Export_RxMessage[1]);
-    float vy = (int16_t)(RxMessage.CANx_Export_RxMessage[2] << 8 | RxMessage.CANx_Export_RxMessage[3]);
-    float vw = (int16_t)(RxMessage.CANx_Export_RxMessage[4] << 8 | RxMessage.CANx_Export_RxMessage[5]);
-    ControlMes.yaw_velocity = (int16_t)(RxMessage.CANx_Export_RxMessage[6] << 8 | RxMessage.CANx_Export_RxMessage[7]);
+    float vx = (int16_t)(RxMessage.FDCANx_Export_RxMessage[0] << 8 | RxMessage.FDCANx_Export_RxMessage[1]);
+    float vy = (int16_t)(RxMessage.FDCANx_Export_RxMessage[2] << 8 | RxMessage.FDCANx_Export_RxMessage[3]);
+    float vw = (int16_t)(RxMessage.FDCANx_Export_RxMessage[4] << 8 | RxMessage.FDCANx_Export_RxMessage[5]);
+    ControlMes.rece_.yaw_velocity = (int16_t)(RxMessage.FDCANx_Export_RxMessage[6] << 8 | RxMessage.FDCANx_Export_RxMessage[7]);
     //注意cloud角度还未更新，后续需要加上
 
-    chassis_control.Speed_ToCloud.vx = vx; //左手上下
-    chassis_control.Speed_ToCloud.vy = vy; //左手左右
-    chassis_control.Speed_ToCloud.wz = -1 * vw / 200; //滑轮
-		if(!ControlMes.AutoAimFlag )
-  	{
-			Cloud.Target_Yaw += -1 * ControlMes.yaw_velocity * 0.06f; // 右手左右
+    chassis.speed_to_cloud.vx = vx; //左手上下
+    chassis.speed_to_cloud.vy = vy; //左手左右
+    chassis.speed_to_cloud.wz = -1 * vw / 200; //滑轮
+		if(!ControlMes.rece_.AutoAimFlag )
+  		{
+			Cloud.Target_Yaw += -1 * ControlMes.rece_.yaw_velocity * 0.06f; // 右手左右
 		}
 }
 
-void Board2_getGimbalInfo(Can_Export_Data_t RxMessage)
+void Board2_getGimbalInfo(FDCan_Export_Data_t RxMessage)
 {
 		static float AutoAim_Offset = 0;
-    float yaw_position 			= (int16_t)(RxMessage.CANx_Export_RxMessage[0] << 8 | RxMessage.CANx_Export_RxMessage[1]);
- 		ControlMes.shoot_Speed 	= (uint8_t)RxMessage.CANx_Export_RxMessage[2];
+    float yaw_position 			= (int16_t)(RxMessage.FDCANx_Export_RxMessage[0] << 8 | RxMessage.FDCANx_Export_RxMessage[1]);
+ 		ControlMes.shoot_Speed 	= (uint8_t)RxMessage.FDCANx_Export_RxMessage[2];
 	  ControlMes.shoot_Speed/=2;
-		ControlMes.fric_Flag 		= (uint8_t)(RxMessage.CANx_Export_RxMessage[3]>>0)&0x01;
-		ControlMes.AutoAimFlag 	= (uint8_t)(RxMessage.CANx_Export_RxMessage[3]>>1)&0x01;
-		ControlMes.change_Flag 	= (uint8_t)(RxMessage.CANx_Export_RxMessage[3]>>2)&0x01;
-		ControlMes.modelFlag 		= (uint8_t)(RxMessage.CANx_Export_RxMessage[3]>>3)&0x01;
-		Dial_2006.realTorque    = (uint16_t)(RxMessage.CANx_Export_RxMessage[4] << 8 | RxMessage.CANx_Export_RxMessage[5]);
+		ControlMes.fric_Flag 		= (uint8_t)(RxMessage.FDCANx_Export_RxMessage[3]>>0)&0x01;
+		ControlMes.rece_.AutoAimFlag 	= (uint8_t)(RxMessage.FDCANx_Export_RxMessage[3]>>1)&0x01;
+		ControlMes.change_Flag 	= (uint8_t)(RxMessage.FDCANx_Export_RxMessage[3]>>2)&0x01;
+		ControlMes.modelFlag 		= (uint8_t)(RxMessage.FDCANx_Export_RxMessage[3]>>3)&0x01;
+		Cloud.Dial_2006.realTorque    = (uint16_t)(RxMessage.FDCANx_Export_RxMessage[4] << 8 | RxMessage.FDCANx_Export_RxMessage[5]);
 
-		if(ControlMes.AutoAimFlag == 1 )
+		if(ControlMes.rece_.AutoAimFlag == 1 )
 		{
 			if(yaw_position == 0.0f) 
 			{
 				yaw_position = Cloud.Target_Yaw;
 			}
-			AutoAim_Offset = -1 * ControlMes.yaw_velocity * 0.03f; // 右手左右
+			AutoAim_Offset = -1 * ControlMes.rece_.yaw_velocity * 0.03f; // 右手左右
 			Cloud.Target_Yaw = yaw_position + AutoAim_Offset; // 此处的值应与上位机传来的数据相同
 		}
 		else

@@ -104,6 +104,13 @@ const osThreadAttr_t ET16STask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityRealtime,
 };
+/* Definitions for CloudTask */
+osThreadId_t CloudTaskHandle;
+const osThreadAttr_t CloudTask_attributes = {
+  .name = "CloudTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -116,6 +123,7 @@ void StartIMUTask(void *argument);
 void StartBoardcommTask(void *argument);
 void StartVofaTask(void *argument);
 void StartET16STask(void *argument);
+void StartCloudTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -166,6 +174,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of ET16STask */
   ET16STaskHandle = osThreadNew(StartET16STask, NULL, &ET16STask_attributes);
+
+  /* creation of CloudTask */
+  CloudTaskHandle = osThreadNew(StartCloudTask, NULL, &CloudTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* USER CODE END RTOS_THREADS */
@@ -283,7 +294,8 @@ void StartBoardcommTask(void *argument)
   /* USER CODE BEGIN StartBoardcommTask */
 	static float board_start;
   static float board_dt;
-	 BoardCommInit(&board_comm,&hfdcan2, 0x11f);
+//	 BoardCommInit(&board_comm,&hfdcan2, 0x11f);
+	Board2_FUN.BoardCommInit(&hfdcan2);
   /* Infinite loop */
   for(;;)
   {
@@ -336,6 +348,30 @@ void StartET16STask(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartET16STask */
+}
+
+/* USER CODE BEGIN Header_StartCloudTask */
+/**
+* @brief Function implementing the CloudTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartCloudTask */
+void StartCloudTask(void *argument)
+{
+  /* USER CODE BEGIN StartCloudTask */
+  static float cloud_start;
+  static float cloud_dt;
+  CloudInit();
+  /* Infinite loop */
+  for(;;)
+  {
+    cloud_start = DWT_GetTimeline_ms();
+    Cloud_ControlTask();
+    cloud_dt = DWT_GetTimeline_ms() - cloud_start;
+    osDelay(1);
+  }
+  /* USER CODE END StartCloudTask */
 }
 
 /* Private application code --------------------------------------------------*/

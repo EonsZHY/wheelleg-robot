@@ -1,7 +1,6 @@
 legwheel/task_manager.o: ..\Applications\Task_manager.cpp \
   ..\Applications\Task_manager.h ..\Applications\board_comm.h \
-  ..\Core\Inc\fdcan.h ..\Core\Inc\main.h \
-  ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h \
+  ..\Core\Inc\main.h ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h \
   ..\Core\Inc\stm32h7xx_hal_conf.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_rcc.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_def.h \
@@ -55,7 +54,7 @@ legwheel/task_manager.o: ..\Applications\Task_manager.cpp \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_tim_ex.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_uart.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_uart_ex.h \
-  ..\Bsp\CAN\Bsp_fdcan.h \
+  ..\Bsp\CAN\BSP_fdcan.h ..\Core\Inc\fdcan.h ..\Core\Inc\main.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS_V2\cmsis_os.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\include\FreeRTOS.h \
   ..\Core\Inc\FreeRTOSConfig.h \
@@ -73,23 +72,26 @@ legwheel/task_manager.o: ..\Applications\Task_manager.cpp \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stdio.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\libcxx\string.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\string.h \
-  ..\Applications\Chassis.h ..\Algorithm\inc\lqr.h \
-  ..\Algorithm\inc\pid.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
+  ..\Applications\Cloud.h ..\Algorithm\inc\FuzzyPID.h \
+  ..\Algorithm\inc\kalman_filter.h \
+  ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\libcxx\float.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\float.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\libcxx\limits.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\limits.h \
-  ..\Algorithm\inc\vmc.h ..\Devices\tpid\tpid.h \
-  ..\Algorithm\inc\kalman_filter.h ..\Devices\M6020\M6020_Motor.h \
+  ..\Algorithm\inc\motor_pid.h ..\Algorithm\inc\FuzzyPID.h \
+  ..\Devices\GM6020\GM6020.h ..\Devices\tpid\tpid.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\libcxx\stdbool.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stdbool.h \
-  ..\Bsp\CAN\BSP_fdcan.h ..\Devices\M3508\M3508.h \
-  ..\Devices\DM8009P\DM_8009P.h ..\Devices\dji_motor\dji_motor.h \
-  ..\Devices\GM6020\GM6020.h ..\Algorithm\inc\motor_pid.h \
-  ..\Algorithm\inc\FuzzyPID.h ..\Bsp\DWT\bsp_dwt.h ..\Core\Inc\main.h \
+  ..\Devices\dji_motor\dji_motor.h ..\Applications\ins.h \
   ..\Devices\Saber_C3\Saber_C3.h ..\Core\Inc\usart.h \
+  ..\Devices\M2006\M2006.h ..\Devices\N100\N100.h \
+  ..\Applications\Chassis.h ..\Algorithm\inc\lqr.h \
+  ..\Algorithm\inc\pid.h ..\Algorithm\inc\vmc.h \
+  ..\Devices\M6020\M6020_Motor.h ..\Devices\M3508\M3508.h \
+  ..\Devices\DM8009P\DM_8009P.h ..\Bsp\DWT\bsp_dwt.h \
   ..\Devices\Unitree\unitree.h ..\Algorithm\inc\user_lib.h \
-  ..\Applications\ins.h ..\Devices\VOFA+\vofa.h \
+  ..\Devices\VOFA+\vofa.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stdarg.h \
   ..\Devices\SBUS\SBUS.h

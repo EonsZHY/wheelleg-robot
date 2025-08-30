@@ -90,7 +90,7 @@ enum Enum_Control_Method
     Control_Method_ANGLE,
 };
 
-
+#ifdef __cplusplus
 /**
  * @brief 大疆3508电机, 自带扭矩环, 单片机控制输出扭矩
  *
@@ -213,5 +213,5 @@ protected:
     
 };
 uint8_t *allocate_tx_data(FDCAN_HandleTypeDef *hcan, Enum_CAN_Motor_ID __CAN_ID); //分配CAN的发送缓冲区
-
+#endif
 #endif

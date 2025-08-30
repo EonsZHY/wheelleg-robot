@@ -20,7 +20,6 @@
 #include <stdint.h>
 #include "arm_math.h"
 #include "dji_motor.h"
-#include "tpid.h"
 
 #define M6020_READID_START 0x205 //当ID为1时的报文ID
 #define M6020_SENDID 0x1FF //1~4的电机，0x2FF为5~7
@@ -30,27 +29,22 @@
 
 #define M6020_mAngleRatio 22.7527f //机械角度与真实角度的比率
 
-// 大疆电机CAN通信发送缓冲区
-extern uint8_t CAN3_0x1ff_Tx_Data[8];
-extern uint8_t CAN3_0x200_Tx_Data[8];
-extern uint8_t CAN3_0x2ff_Tx_Data[8];
-
-extern uint8_t CAN_Supercap_Tx_Data[8];
 /**
  * @brief 大疆6020电机, 自带扭矩环, 单片机控制输出扭矩
  *
  */
+ #ifdef __cplusplus
 class Class_GM6020
 {
 public:
     static FDCAN_HandleTypeDef *Can_Motor;  //电机绑定的can总线
     Enum_Control_Method Get_Control_Method();
     void Init(Enum_CAN_Motor_ID __CAN_ID, Enum_Control_Method __Control_Method = Control_Method_OMEGA, float __Gearbox_Rate = 3591.0f / 187.0f, float __Torque_Max = 30000.0f);
-    void PID_Init(void);  //M6020pid初始化
     static void SetVoltage(void);
     void FDCAN_RxCpltCallback(FDCan_Export_Data_t RxMessage);
     void SetTargetAngle(int32_t angle);
-	float GetTargetAngle(){return targetAngle;}
+	float SetTargetAngle(){return targetAngle;}
+    float GetRealAngle(){return realAngle;}
     void Output();
     void Set_Out(int16_t __Out);
 	void SetAutoAimFlag(uint8_t Flag){AutoAimFlag = Flag;}
@@ -63,6 +57,8 @@ public:
 	struct Struct_PID_Manage_Object position_PID;
 	struct Struct_PID_Manage_Object velocity_PID;	
 	struct Struct_PID_Manage_Object Aim_position_PID;
+	uint8_t InfoUpdateFlag;   //信息读取更新标志
+    uint16_t InfoUpdateFrame; //帧率
 private:
     //发送缓存区
     uint8_t *CAN_Tx_Data;
@@ -74,16 +70,13 @@ private:
 
     
 
-    uint8_t InfoUpdateFlag;   //信息读取更新标志
-    uint16_t InfoUpdateFrame; //帧率
+
     uint8_t OffLineFlag;      //设备离线标志
 	uint8_t AutoAimFlag;
     //最大电压
     float Voltage_Max = 30000;
     //收数据绑定的CAN ID, C6系列0x201~0x208, GM系列0x205~0x20b
     Enum_CAN_Motor_ID CAN_ID;
-	//输出量
-    float Out = 0.0f;
     //一圈编码器刻度
     uint16_t Encoder_Num_Per_Round = 8192;
 	   //电机控制方式
@@ -95,5 +88,5 @@ private:
 };
 
 
-
+#endif
 #endif /* __GM6020_H */

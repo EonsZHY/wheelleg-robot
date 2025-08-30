@@ -23,19 +23,6 @@
 // #define SPEED_MAX 2
 // #define W_SPEED_MAX  4
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-// ????C??????
-void chassis_lf_joint_getInfo(FDCan_Export_Data_t data);
-void chassis_lb_joint_getInfo(FDCan_Export_Data_t data);
-void chassis_rf_joint_getInfo(FDCan_Export_Data_t data);
-void chassis_rb_joint_getInfo(FDCan_Export_Data_t data);
-
-#ifdef __cplusplus
-}
-#endif
 #define MAX_LEG_LENGTH 0.4f //最大腿长
 #define MIN_LEG_LENGTH 0.2f //最短腿长
 // ������״̬ö��
@@ -60,8 +47,21 @@ typedef enum {
     RECOVER_ADJUST,     // ������̬
     //RECOVER_EXTEND,     // ��չ�Ȳ�
 } RecoverPhase;
+//底盘数据结构体
+typedef struct Speed_ToCloud
+ {
+        float vx;
+        float vy;
+        float wz;
+ }Speed_ToCloud;
 
-
+typedef struct Speed_ToChassis
+{
+        float vx;
+        float vy;
+        float wz;
+}Speed_ToChassis;
+#ifdef __cplusplus
 class balance_Chassis
 {
 	public:
@@ -71,7 +71,9 @@ class balance_Chassis
 		Vmc left_leg_, right_leg_;
 		KalmanFilter_t kf,kf_l,kf_r;
 		Lqr lqr_body_;
-		Pid left_leg_len_, right_leg_len_, anti_crash_,roll_comp_, left_leg_phi0, right_leg_phi0;   
+		Pid left_leg_len_, right_leg_len_, anti_crash_,roll_comp_, left_leg_phi0, right_leg_phi0;
+		Speed_ToCloud speed_to_cloud;
+		Speed_ToChassis speed_to_chassis;
 		void motor_test_init();
 	  float MotorAngle();
 		void LegCalc();
@@ -97,6 +99,8 @@ class balance_Chassis
 		void JumpCalc();
 		void UpdateChassisStatus();
 		void ChassissControl();
+		void getangle(float angle);
+
 	private:
 		float left_leg_F_, right_leg_F_, roll_comp;
 		float l_wheel_T_, r_wheel_T_, left_leg_T_, right_leg_T_;
@@ -113,8 +117,10 @@ class balance_Chassis
 		RecoverPhase recover_status;
 		float recover_timer;
 		float jump_timer;
+		float Angle_ChassisToCloud;
 };
 
 
 extern balance_Chassis chassis;
+#endif
 #endif
