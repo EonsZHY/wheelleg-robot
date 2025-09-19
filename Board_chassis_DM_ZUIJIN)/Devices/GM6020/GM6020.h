@@ -54,9 +54,6 @@ public:
 	uint16_t realAngle;  //读回来的机械角度
 	int16_t outCurrent; //输出电流
 	int32_t realSpeed;   //读回来的速度
-	struct Struct_PID_Manage_Object position_PID;
-	struct Struct_PID_Manage_Object velocity_PID;	
-	struct Struct_PID_Manage_Object Aim_position_PID;
 	uint8_t InfoUpdateFlag;   //信息读取更新标志
     uint16_t InfoUpdateFrame; //帧率
 private:

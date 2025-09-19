@@ -53,8 +53,8 @@ void balance_Chassis::MotorInit()
   //设置电机零点位置，只在需要重新设置零点时使用
   // lf_joint_.Save_Pos_Zero();
   // lb_joint_.Save_Pos_Zero();
-  //  rf_joint_.Save_Pos_Zero();
-//    rb_joint_.Save_Pos_Zero();
+    //rf_joint_.Save_Pos_Zero();
+    //rb_joint_.Save_Pos_Zero();
 
 
 }
@@ -122,11 +122,12 @@ void balance_Chassis::LegCalc() {
       -rb_joint_.GetAngle() , -rb_joint_.GetSpeed(),
       -rf_joint_.GetAngle() + k_phi4_bias, -rf_joint_.GetSpeed(),
       -rb_joint_.GetTor(), -rf_joint_.GetTor());
-  left_leg_.DerivateCalc();
-  right_leg_.DerivateCalc();
+ 
 
   left_leg_.LegCalc();
   right_leg_.LegCalc();
+  left_leg_.DerivateCalc();
+  right_leg_.DerivateCalc();
   left_leg_.Jacobian();
   right_leg_.Jacobian();
    left_leg_.LegForceCalc();
@@ -201,14 +202,15 @@ void balance_Chassis::TorControl() {
 //	{
 //		StopMotor();
 //	}
-if(sbusrev.stop_flag == 1)
-{
-    StopMotor();
-}
-else
-{
-	SetMotorTor();
-}
+ if(sbus_rx_data.status_flag == 3)
+ {
+     StopMotor();
+ }
+ else
+ {
+ 	SetMotorTor();
+ }
+
 }
 
 /**
@@ -220,24 +222,24 @@ else
 void balance_Chassis::LegLenCalc() {
   left_leg_len_.SetMeasure(left_leg_.GetLegLen());
   right_leg_len_.SetMeasure(right_leg_.GetLegLen());
-  roll_comp_.SetRef(0);
-  roll_comp_.SetMeasure(INS.Roll);
-if (left_leg_.GetForceNormal() < 15.0f &&right_leg_.GetForceNormal() < 15.0f)
-   {
- 	  //  left_leg_F_ = left_leg_len_.Calculate() + k_gravity_comp*arm_cos_f32(left_leg_.GetTheta()) ;
- 	  //  right_leg_F_ = right_leg_len_.Calculate() + k_gravity_comp*arm_cos_f32(right_leg_.GetTheta()) ;
-    left_leg_len_.SetMeasure(MAX_LEG_LENGTH);
-    right_leg_len_.SetMeasure(MAX_LEG_LENGTH);
-    left_leg_F_ = left_leg_len_.Calculate();
-    right_leg_F_ = right_leg_len_.Calculate();
-   }
-  else
- {
-  left_leg_F_ = left_leg_len_.Calculate() + k_gravity_comp*arm_cos_f32(left_leg_.GetTheta()) +roll_comp_.Calculate();
-  right_leg_F_ = right_leg_len_.Calculate() + k_gravity_comp*arm_cos_f32(right_leg_.GetTheta()) - roll_comp_.Calculate();
- }
-  // left_leg_F_ = left_leg_len_.Calculate();
-  // right_leg_F_ = right_leg_len_.Calculate();
+  // roll_comp_.SetRef(0);
+  // roll_comp_.SetMeasure(INS.Roll);
+// if (left_leg_.GetForceNormal() < 15.0f &&right_leg_.GetForceNormal() < 15.0f)
+//    {
+//  	  //  left_leg_F_ = left_leg_len_.Calculate() + k_gravity_comp*arm_cos_f32(left_leg_.GetTheta()) ;
+//  	  //  right_leg_F_ = right_leg_len_.Calculate() + k_gravity_comp*arm_cos_f32(right_leg_.GetTheta()) ;
+//     left_leg_len_.SetMeasure(MAX_LEG_LENGTH);
+//     right_leg_len_.SetMeasure(MAX_LEG_LENGTH);
+//     left_leg_F_ = left_leg_len_.Calculate();
+//     right_leg_F_ = right_leg_len_.Calculate();
+//    }
+//   else
+//  {
+//   left_leg_F_ = left_leg_len_.Calculate() + k_gravity_comp*arm_cos_f32(left_leg_.GetTheta()) +roll_comp_.Calculate();
+//   right_leg_F_ = right_leg_len_.Calculate() + k_gravity_comp*arm_cos_f32(right_leg_.GetTheta()) - roll_comp_.Calculate();
+//  }
+   left_leg_F_ = left_leg_len_.Calculate();
+   right_leg_F_ = right_leg_len_.Calculate();
 }
 
 
@@ -268,11 +270,11 @@ void balance_Chassis::SynthesizeMotion() {
 void balance_Chassis::Controller() {
   SetState();
   LegCalc();
-   SpeedCalc();
-   UpdateChassisStatus();
-   ChassissControl();
-  //  LQRCalc();
-  // SynthesizeMotion();
+   //SpeedCalc();
+   //UpdateChassisStatus();
+   //ChassissControl();
+    LQRCalc();
+   SynthesizeMotion();
   // if (jump_state_ == true)
   //   Jump();
   LegLenCalc();
@@ -288,17 +290,32 @@ void balance_Chassis::Controller() {
  */
 // 电机力矩输入模式
 void balance_Chassis::SetMotorTor() {
-  lf_joint_.SetMotorT(left_leg_.GetT2());
-   lb_joint_.SetMotorT(left_leg_.GetT1());
-  rf_joint_.SetMotorT(-right_leg_.GetT2());
-  rb_joint_.SetMotorT(-right_leg_.GetT1());
+  // lf_joint_.SetMotorT(left_leg_.GetT2());
+  //  lb_joint_.SetMotorT(left_leg_.GetT1());
+  // rf_joint_.SetMotorT(-right_leg_.GetT2());
+  // rb_joint_.SetMotorT(-right_leg_.GetT1());
   // rf_joint_.SetMotorT(0);
   // rb_joint_.SetMotorT(0);
   
-	left_wheel.Set_Target_Torque(l_wheel_T_);
-	right_wheel.Set_Target_Torque(-r_wheel_T_);
-	left_wheel.Calc_Current();
-  right_wheel.Calc_Current();
+	 left_wheel.Set_Target_Torque(l_wheel_T_);
+	 right_wheel.Set_Target_Torque(-r_wheel_T_);
+
+//  lf_joint_.SetMotorT(1);
+//   lb_joint_.SetMotorT(1);
+//  rf_joint_.SetMotorT(1);
+//  rb_joint_.SetMotorT(1);
+	   lf_joint_.SetMotorT(left_leg_.GetT2());
+    lb_joint_.SetMotorT(left_leg_.GetT1());
+   rf_joint_.SetMotorT(-right_leg_.GetT2());
+//   if(-right_leg_.GetT1() >= 0)
+//   {
+//    rb_joint_.SetMotorT(-(right_leg_.GetT1()+4.5));
+//   }
+//  else
+//  {
+//    rb_joint_.SetMotorT(-(right_leg_.GetT1()-4.5));
+//  }
+   rb_joint_.SetMotorT(-right_leg_.GetT1());
 }
 /**
  * @brief 力矩指令设置为0-急停
@@ -326,7 +343,7 @@ void balance_Chassis::StopMotor() {
  * @param
  */
 void balance_Chassis::SetLegLen() {
-target_len_ = sbusrev.len;
+target_len_ =  sbus_rx_data.len;
 left_leg_len_.SetRef(target_len_);
 right_leg_len_.SetRef(target_len_);
 
@@ -390,8 +407,8 @@ right_leg_len_.SetRef(target_len_);
  * @param
  */
 void balance_Chassis::SetSpd() {
- target_speed_= sbusrev.speed;
- target_w_rotation_ = sbusrev.w_speed;
+ target_speed_=  sbus_rx_data.speed;
+ target_w_rotation_ =  sbus_rx_data.w_speed;
 target_dist_=0;
 target_rotation_=0;
 }
@@ -405,34 +422,34 @@ target_rotation_=0;
 void balance_Chassis::SetState() {
   controller_dt_ = DWT_GetDeltaT(&dwt_cnt_controller_);
   
-  if(robot_status==STATE_NORMAL)
-  {
-    SetLegLen();
-    SetSpd();
-    //SetFollow();
-  }
-	// if(jump_cnt==0&&sbusrev.jump_flag==1)
-	// {
-	// 	jump_state_=true;
-	// 	jump_cnt=1;
-	// }
-      // 只有在正常状态且不在跳跃过程中才检测跳跃信号
-    if(robot_status == STATE_NORMAL && jump_status == JUMP_NONE)
-    {
-        // 边缘检测：只有当jump_flag从0变为1时才触发
-        if(jump_cnt == 0 && sbusrev.jump_flag == 1)
-        {
-            jump_state_ = true;
-            jump_cnt = 1;
-            jump_status = JUMP_COMPRESS; // 开始跳跃流程
-        }
-    }
-     // 如果跳跃信号消失，重置计数
-    if(sbusrev.jump_flag == 0)
-    {
-        jump_cnt = 0;
-    }
-
+  // if(robot_status==STATE_NORMAL)
+  // {
+  //   SetLegLen();
+  //   SetSpd();
+  //   SetFollow();
+  // }
+	// // if(jump_cnt==0&&sbusrev.jump_flag==2)
+	// // {
+	// // 	jump_state_=true;
+	// // 	jump_cnt=1;
+	// // }
+  //     // 只有在正常状态且不在跳跃过程中才检测跳跃信号
+  //   if(robot_status == STATE_NORMAL && jump_status == JUMP_NONE)
+  //   {
+  //       // 边缘检测：只有当jump_flag从1变为2时才触发
+  //       if(jump_cnt == 0 && sbusrev.jump_flag == 2)
+  //       {
+  //           jump_state_ = true;
+  //           jump_cnt = 1;
+  //           jump_status = JUMP_COMPRESS; // 开始跳跃流程
+  //       }
+  //   }
+  //    // 如果跳跃信号消失，重置计数
+  //   if(sbusrev.jump_flag == 1)
+  //   {
+  //       jump_cnt = 0;
+  //   }
+       SetLegLen();
 }
 
 /**

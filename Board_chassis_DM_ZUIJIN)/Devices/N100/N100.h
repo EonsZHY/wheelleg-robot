@@ -28,16 +28,16 @@
 #define IMU_LEN  0x38   //56+8  8组数据
 #define AHRS_LEN 0x30   //48+8  7组数据
 
-extern uint8_t N100_Rxbuffer;
-extern uint8_t N100_ReImu[IMU_RS];
+// 最终存放有效AHRS数据的缓冲区
 extern uint8_t N100_ReAhrs[AHRS_RS];
-extern uint8_t N100_tmpData[IMU_RS];
-extern uint8_t Count;
-extern uint8_t last_rsnum;
-extern int Flag_Ahrs ;
-extern int Flag_Imu ;
-extern int Handle_Ahrs;
-extern int Handle_Imu;
+// 最终存放有效IMU数据的缓冲区
+extern uint8_t N100_ReImu[IMU_RS];
+// DMA接收缓冲区，大小应为可能的最大包长度
+extern uint8_t N100_dma_buf[IMU_RS]; 
+
+// 处理标志，通知主循环有新数据需要解析
+extern volatile int Handle_Ahrs; // 使用 volatile 关键字
+extern volatile int Handle_Imu;  // volatile 防止编译器过度优化
 
 typedef struct IMUData_Packet_t{
     float gyroscope_x;          //unit: rad/s

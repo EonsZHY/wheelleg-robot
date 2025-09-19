@@ -104,7 +104,7 @@ public:
 //    Class_PID PID_Omega;
     //绑定的CAN
     static FDCAN_HandleTypeDef *Can_Motor;  //电机绑定的can总线
-    void Init(Enum_CAN_Motor_ID __CAN_ID, Enum_Control_Method __Control_Method = Control_Method_OMEGA, float __Gearbox_Rate = 3591.0f / 187.0f, float __Torque_Max = 16384.0f);
+    void Init(Enum_CAN_Motor_ID __CAN_ID, Enum_Control_Method __Control_Method = Control_Method_OMEGA);
 
     uint16_t Get_Output_Max();
     Enum_CAN_Motor_Status Get_CAN_Motor_Status();
@@ -122,7 +122,7 @@ public:
     void Set_Target_Angle(float __Target_Angle);
     void Set_Target_Omega(float __Target_Omega);
     void Set_Target_Torque(float __Target_Torque);
-    void Set_Out(float __Out);
+    void Set_Out();
 
     void FDCAN_RxCpltCallback(FDCan_Export_Data_t RxMessage);
 	void Calc_Current();
@@ -201,8 +201,8 @@ protected:
     //目标的扭矩, 直接采用反馈值
     float Target_Torque = 0.0f;
     //输出量
-    float Out = 0.0f;
-    float targetCurrent = 0.0f; //经过PID计算得到的转矩电流
+    int16_t Out = 0.0f;
+    int16_t targetCurrent = 0.0f; //发送到CAN总线上的控制电流
     float targetTorqueI = 0.0f;	//目标转矩得到的目标电流
     int16_t sendCurrent=0.0f;	//发送给电机的电流
     //内部变量

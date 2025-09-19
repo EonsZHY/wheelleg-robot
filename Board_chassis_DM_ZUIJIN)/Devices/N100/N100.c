@@ -16,35 +16,30 @@
 IMUData_Packet_t IMUData_Packet;
 AHRSData_Packet_t AHRSData_Packet;
 
-//串口接收标志
-int Flag_Ahrs = 0;
-int Flag_Imu = 0;
+// --- 变量定义 ---
+IMUData_Packet_t IMUData_Packet;
+AHRSData_Packet_t AHRSData_Packet;
 
-//数据处理标志
-int Handle_Ahrs = 0;
-int Handle_Imu = 0;
-
-uint8_t N100_Rxbuffer;
-uint8_t N100_ReImu[IMU_RS];
 uint8_t N100_ReAhrs[AHRS_RS];
-uint8_t N100_tmpData[IMU_RS];
-uint8_t Count = 0;
-uint8_t last_rsnum = 0;
+uint8_t N100_ReImu[IMU_RS];
+uint8_t N100_dma_buf[IMU_RS];
+
+volatile int Handle_Ahrs = 0;
+volatile int Handle_Imu = 0;
+
+
 /**
-  * @brief          IMU初始化任务，打开串口
-  * @retval         none
-  */
+ * @brief   IMU初始化任务，打开串口DMA接收
+ */
 void N100_Init()
 {
-    
     // 清零缓冲区
     memset(N100_ReImu, 0, sizeof(N100_ReImu));
     memset(N100_ReAhrs, 0, sizeof(N100_ReAhrs));
-	memset(N100_tmpData, 0, sizeof(N100_tmpData));
+    memset(N100_dma_buf, 0, sizeof(N100_dma_buf));
     
-    // 启动DMA接收
-    HAL_UARTEx_ReceiveToIdle_DMA(&huart7, &N100_Rxbuffer, sizeof(N100_Rxbuffer));
-    
+    // 启动DMA接收，目标是N100_dma_buf，长度是最大可能的包长
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart7, N100_dma_buf, sizeof(N100_dma_buf));
 }
 
 
@@ -123,17 +118,20 @@ float DATA_Trans(uint8_t Data_1,uint8_t Data_2,uint8_t Data_3,uint8_t Data_4)
 }
 
 
-long long timestamp(uint8_t Data_1,uint8_t Data_2,uint8_t Data_3,uint8_t Data_4,uint8_t Data_5,uint8_t Data_6,uint8_t Data_7,uint8_t Data_8)
+long long timestamp(uint8_t Data_1, uint8_t Data_2, uint8_t Data_3, uint8_t Data_4, 
+                    uint8_t Data_5, uint8_t Data_6, uint8_t Data_7, uint8_t Data_8)
 {
-  long long transition_64;
-  transition_64 = 0;
-  transition_64 |=  Data_8<<56;   
-  transition_64 |=  Data_7<<48; 
-	transition_64 |=  Data_6<<40;
-	transition_64 |=  Data_5<<32;	
-  transition_64 |=  Data_4<<24;   
-  transition_64 |=  Data_3<<16; 
-	transition_64 |=  Data_2<<8;
-	transition_64 |=  Data_1;
-	return transition_64;
+    long long transition_64 = 0;
+
+    // 在位移前，将每个8位数据强制转换为64位
+    transition_64 |= (long long)Data_8 << 56;
+    transition_64 |= (long long)Data_7 << 48;
+    transition_64 |= (long long)Data_6 << 40;
+    transition_64 |= (long long)Data_5 << 32;
+    transition_64 |= (long long)Data_4 << 24;
+    transition_64 |= (long long)Data_3 << 16;
+    transition_64 |= (long long)Data_2 << 8;
+    transition_64 |= (long long)Data_1; // Data_1不需要转换
+
+    return transition_64;
 }

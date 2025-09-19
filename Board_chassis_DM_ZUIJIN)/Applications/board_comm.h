@@ -29,12 +29,13 @@
 #define model_Record 1
 
 
-#define Board2_FunGroundInit   \
-	{                          \
-		&Board2_getChassisInfo,       \
-		&Board2_getGimbalInfo,		  \
-		&Board2_To_1,                 \
-	}
+#define Board2_FunGroundInit       \
+    {                              \
+        &Board2_getChassisInfo,    \
+        &Board2_getGimbalInfo,     \
+        &Board2_To_1,              \
+        &BoardCommInit             \
+    }
 
 typedef struct {
     int16_t x_velocity;
@@ -87,8 +88,8 @@ extern Board2_FUN_t Board2_FUN;
 extern ControlMessge ControlMes;
 
 /********��������********/
-void Board2_To_1(ControlMessge _ControlMes);
-void Board2_getChassisInfo(ControlMessge _ControlMes, FDCan_Export_Data_t RxMessage);
-void Board2_getGimbalInfo(ControlMessge _ControlMes, FDCan_Export_Data_t RxMessage);
-void BoardCommInit(ControlMessge _ControlMes,FDCAN_HandleTypeDef* _phcan, uint16_t _id);
+void Board2_To_1();
+void Board2_getChassisInfo(FDCan_Export_Data_t RxMessage);
+void Board2_getGimbalInfo(FDCan_Export_Data_t RxMessage);
+void BoardCommInit(FDCAN_HandleTypeDef* _phcan);
 #endif

@@ -41,10 +41,5 @@ legwheel/sbus.o: ..\Devices\SBUS\SBUS.c ..\Devices\SBUS\SBUS.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_tim_ex.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_uart.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_uart_ex.h \
-  ..\Core\Inc\usart.h ..\Core\Inc\main.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\string.h \
-  ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
-  ..\Drivers\CMSIS\Include\cmsis_compiler.h \
-  D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\float.h \
-  D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\limits.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stdlib.h

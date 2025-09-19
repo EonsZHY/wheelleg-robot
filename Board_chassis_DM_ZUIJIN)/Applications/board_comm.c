@@ -12,7 +12,7 @@
 
 /********变量定义********/
 
-Board2_FUN_t Board2_FUN;
+Board2_FUN_t Board2_FUN = Board2_FunGroundInit;
 ControlMessge ControlMes;
 
 /**

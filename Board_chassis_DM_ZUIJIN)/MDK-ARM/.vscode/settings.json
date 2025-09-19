@@ -10,7 +10,11 @@
         "cmath": "c",
         "cstdlib": "c",
         "__nullptr": "cpp",
-        "type_traits": "cpp"
+        "type_traits": "cpp",
+        "typeinfo": "cpp",
+        "sbus.h": "c",
+        "main.h": "c",
+        "vofa.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

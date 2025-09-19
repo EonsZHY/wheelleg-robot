@@ -24,8 +24,8 @@
 #define KP_MAX 500.0f
 #define KD_MIN 0.0f
 #define KD_MAX 5.0f
-#define T_MIN -15.0f
-#define T_MAX 15.0f
+#define T_MIN -25.0f
+#define T_MAX 25.0f
 #define I_MAX 30.0f 
 #define DM_8009P_TXID_START 0x01
 #define DM_8009P_TXID_END 0x04

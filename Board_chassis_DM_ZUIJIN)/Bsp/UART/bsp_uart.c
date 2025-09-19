@@ -97,56 +97,43 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 	//如果数据来自USART1,即为IMU数据
 	if(huart->Instance == UART7)
 	{
-	// 	if(Saber_Montage_Flag)
-	// 	{
-	// 		memcpy(Saber_Montage + Saber_Data_Length, Saber_Rxbuffer, Saber_Data_Length);
-	// 		Saber_Montage_Flag = 0;
-	// 	}
-	// 	else
-	// 	{
-	// 		memcpy(Saber_Montage, Saber_Rxbuffer, Saber_Data_Length);
-	// 		Saber_Montage_Flag = 1;
-	// 	}
-       
-        N100_tmpData[Count] = N100_Rxbuffer;  // 将串口数据填入数组
-        if (((last_rsnum == FRAME_TAIL) && (N100_Rxbuffer == FRAME_HEAD)) || Count > 0) {
-            Count++;
-            if ((N100_tmpData[1] == TYPE_IMU) && (N100_tmpData[2] == IMU_LEN)) {
-                 Flag_Imu= 1;
-            }
-            if ((N100_tmpData[1] == TYPE_AHRS) && (N100_tmpData[2] == AHRS_LEN)) {
-                Flag_Ahrs = 1;
-            }
-        } else {
-            Count = 0;
-        }
-        last_rsnum = N100_Rxbuffer;
+// 1. 检查数据包的基本合法性
+        // - 长度是否大于最小有效长度？
+        // - 帧头帧尾是否正确？
+        if (Size > 3 && N100_dma_buf[0] == FRAME_HEAD && N100_dma_buf[Size - 1] == FRAME_TAIL)
+        {
+            // 2. 判断数据包类型并处理
+            uint8_t packet_type = N100_dma_buf[1];
+            uint8_t packet_len_field = N100_dma_buf[2];
 
-        if (Flag_Imu == 1 && Count == IMU_RS) {  // 保存 IMU 数据
-            Count = 0;
-            Flag_Imu = 0;
-            Handle_Imu = 1;
-            if (N100_tmpData[IMU_RS - 1] == FRAME_TAIL) {  // 帧尾校验
-                memcpy(N100_ReImu, N100_tmpData, sizeof(N100_tmpData));
+            // 2.1 如果是IMU数据包
+            if (packet_type == TYPE_IMU && packet_len_field == IMU_LEN && Size == IMU_RS)
+            {
+                // 将DMA缓冲区中的有效数据直接拷贝到IMU最终数据区
+                memcpy(N100_ReImu, N100_dma_buf, IMU_RS);
+                // 设置处理标志，通知主循环
+                Handle_Imu = 1;
+            }
+            // 2.2 如果是AHRS数据包
+            else if (packet_type == TYPE_AHRS && packet_len_field == AHRS_LEN && Size == AHRS_RS)
+            {
+                // 将DMA缓冲区中的有效数据直接拷贝到AHRS最终数据区
+                memcpy(N100_ReAhrs, N100_dma_buf, AHRS_RS);
+                // 设置处理标志，通知主循环
+                Handle_Ahrs = 1;
             }
         }
 
-        if (Flag_Ahrs == 1 && Count == AHRS_RS) {  // 保存 AHRS 数据
-            Count = 0;
-            Flag_Ahrs = 0;
-            Handle_Ahrs = 1;
-            if (N100_tmpData[AHRS_RS - 1] == FRAME_TAIL) {
-                memcpy(N100_ReAhrs, N100_tmpData, sizeof(N100_tmpData));
-            }
-            for (int i = 0; i < sizeof(N100_tmpData); i++) N100_tmpData[i] = 0;  // 清空数据数组
-        }
-		HAL_UARTEx_ReceiveToIdle_DMA(&huart7, &N100_Rxbuffer, sizeof(N100_Rxbuffer));
+        // 3. 无论本次数据是否有效，都必须立即重新启动下一次DMA接收
+        HAL_UARTEx_ReceiveToIdle_DMA(&huart7, N100_dma_buf, sizeof(N100_dma_buf));
  
     }
-	else if (huart->Instance == UART5)
+	else if (huart->Instance == sbus_huart->Instance)
     {
-        SBUS_Handle();
-		SBUS_IT_Open();
+			
+		SBUS_RX_Callback_Handler();
+        // 立即重新启动DMA，准备接收下一帧数据
+        SBUS_Open();
     }
     
 	else{

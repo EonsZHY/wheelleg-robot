@@ -91,7 +91,6 @@ legwheel/task_manager.o: ..\Applications\Task_manager.cpp \
   ..\Algorithm\inc\pid.h ..\Algorithm\inc\vmc.h \
   ..\Devices\M6020\M6020_Motor.h ..\Devices\M3508\M3508.h \
   ..\Devices\DM8009P\DM_8009P.h ..\Bsp\DWT\bsp_dwt.h \
-  ..\Devices\Unitree\unitree.h ..\Algorithm\inc\user_lib.h \
   ..\Devices\VOFA+\vofa.h \
   D:\keil5\ MDK\ARM\ARMCLANG\Bin\..\include\stdarg.h \
   ..\Devices\SBUS\SBUS.h

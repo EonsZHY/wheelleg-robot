@@ -2,7 +2,6 @@
 #include "Chassis.h"
 #include "bsp_dwt.h"
 #include "Saber_C3.h"
-#include "unitree.h"
 #include "ins.h"
 #include "board_comm.h"
 #include "M3508.h"
@@ -103,6 +102,10 @@ void DM_MotorTask()
  */
 void WheelMotorTask() {
 	// M3508_FUN.M3508_setCurrent();
+	chassis.left_wheel.Calc_Current();
+   chassis.right_wheel.Calc_Current();
+   chassis.left_wheel.Set_Out();
+   chassis.right_wheel.Set_Out();
 	chassis.left_wheel.Output();
 	chassis.right_wheel.Output();
 	Class_Motor_3508::Set_Current();
@@ -119,10 +122,11 @@ void ChassisCalcTask() {
 //	{
 //		chassis.Controller();
 //	}
-	if(INS.flag!=0)
-	{
-	    chassis.Controller();
-	}
+	// if(INS.flag!=0)
+	// {
+	//     chassis.Controller();
+	// }
+	chassis.Controller();
 }
 
 /**

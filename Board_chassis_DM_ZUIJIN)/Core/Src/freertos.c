@@ -59,14 +59,14 @@
 osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
-  .stack_size = 128 * 4,
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
 /* Definitions for ChassisTask */
 osThreadId_t ChassisTaskHandle;
 const osThreadAttr_t ChassisTask_attributes = {
   .name = "ChassisTask",
-  .stack_size = 128 * 4,
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for LegMotorTask */
@@ -87,7 +87,7 @@ const osThreadAttr_t IMUTask_attributes = {
 osThreadId_t BoardcommTaskHandle;
 const osThreadAttr_t BoardcommTask_attributes = {
   .name = "BoardcommTask",
-  .stack_size = 128 * 4,
+  .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityRealtime,
 };
 /* Definitions for VofaTask */
@@ -108,7 +108,7 @@ const osThreadAttr_t ET16STask_attributes = {
 osThreadId_t CloudTaskHandle;
 const osThreadAttr_t CloudTask_attributes = {
   .name = "CloudTask",
-  .stack_size = 128 * 4,
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 
@@ -227,6 +227,8 @@ void StartChassisTask(void *argument)
   {
 		chassis_start = DWT_GetTimeline_ms();
     ChassisCalcTask();
+	  if(sbus_rx_data.reset_flag == 2)
+		  HAL_NVIC_SystemReset();
     chassis_dt = DWT_GetTimeline_ms() - chassis_start;
     osDelay(1);
   }
@@ -322,6 +324,7 @@ void StartVofaTask(void *argument)
   {
     vofaTask();
     Vofa_JustFloat(Vofa.data, 3);
+	 osDelay(10);
 
   }
   /* USER CODE END StartVofaTask */
@@ -339,11 +342,12 @@ void StartET16STask(void *argument)
   /* USER CODE BEGIN StartET16STask */
   static float ET16S_start;
   static float ET16S_dt;
-  SBUS_IT_Open();
+  SBUS_Init(&huart5);
   /* Infinite loop */
   for(;;)
   {
     ET16S_start = DWT_GetTimeline_ms();
+    SBUS_Handle();
     ET16S_dt = DWT_GetTimeline_ms() - ET16S_start;
     osDelay(1);
   }

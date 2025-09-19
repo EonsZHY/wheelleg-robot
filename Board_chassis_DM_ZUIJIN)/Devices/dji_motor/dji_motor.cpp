@@ -108,13 +108,11 @@ uint8_t *allocate_tx_data(FDCAN_HandleTypeDef *hcan, Enum_CAN_Motor_ID __CAN_ID)
  * @param __Gearbox_Rate 减速箱减速比, 默认为原装减速箱, 如拆去减速箱则该值设为1
  * @param __Torque_Max 最大扭矩, 需根据不同负载测量后赋值
  */
-void Class_Motor_3508::Init(Enum_CAN_Motor_ID __CAN_ID, Enum_Control_Method __Control_Method, float __Gearbox_Rate, float __Torque_Max)
+void Class_Motor_3508::Init(Enum_CAN_Motor_ID __CAN_ID, Enum_Control_Method __Control_Method)
 {
     CAN_ID = __CAN_ID;
     Control_Method = __Control_Method;
-    Gearbox_Rate = __Gearbox_Rate;
-    Torque_Max = __Torque_Max;
-    CAN_Tx_Data = allocate_tx_data(Can_Motor, __CAN_ID);
+    CAN_Tx_Data = allocate_tx_data(Can_Motor, CAN_ID);
 }
 
 /**
@@ -136,12 +134,12 @@ void Class_Motor_3508::FDCAN_RxCpltCallback(FDCan_Export_Data_t RxMessage)
     Rx_Temperature = RxMessage.FDCANx_Export_RxMessage[6];
 
     delta_encoder = Rx_Encoder - Pre_Encoder;
-    if (delta_encoder < -4096)
+    if (delta_encoder < -(Encoder_Num_Per_Round*0.5))
     {
         //正方向转过了一圈
         Total_Round++;
     }
-    else if (delta_encoder > 4096)
+    else if (delta_encoder > Encoder_Num_Per_Round*0.5)
     {
         //反方向转过了一圈
         Total_Round--;
@@ -150,8 +148,8 @@ void Class_Motor_3508::FDCAN_RxCpltCallback(FDCan_Export_Data_t RxMessage)
 
     Now_Angle = (float)Total_Encoder / (float)Encoder_Num_Per_Round * 2.0f * PI / Gearbox_Rate;
     Now_Omega = (float)Rx_Omega * RPM_TO_RADPS / Gearbox_Rate;
-    Now_TorqueI = (float)Rx_TorqueI;
-    Now_Torque = (float)Rx_TorqueI*KA*Gearbox_Rate;
+    Now_TorqueI = ((float)Rx_TorqueI / Torque_Max) * 20.0f;
+    Now_Torque =  Now_TorqueI * KA * Gearbox_Rate;
     Now_Temperature = Rx_Temperature;
 }
 /**
@@ -160,8 +158,8 @@ void Class_Motor_3508::FDCAN_RxCpltCallback(FDCan_Export_Data_t RxMessage)
  */
 void Class_Motor_3508::Output()
 {
-    CAN_Tx_Data[0] = (int16_t)Out >> 8;
-    CAN_Tx_Data[1] = (int16_t)Out;
+    CAN_Tx_Data[0] = Out >> 8;
+    CAN_Tx_Data[1] = Out;
 }
 
 /**
@@ -319,9 +317,9 @@ void Class_Motor_3508::Set_Target_Torque(float __Target_Torque)
  *
  * @param __Output_Current 输出量
  */
-void Class_Motor_3508::Set_Out(float __Out)
+void Class_Motor_3508::Set_Out()
 {
-   Out = __Out;
+   Out = targetCurrent;
 }
 
 /**
@@ -336,7 +334,14 @@ void Class_Motor_3508::Set_Current()
 
 void Class_Motor_3508::Calc_Current()
 {
-    targetTorqueI=(float)(Target_Torque/(KA*Gearbox_Rate));
-    targetCurrent=targetTorqueI;
-    Set_Out(targetCurrent);
+    targetTorqueI = Target_Torque/(KA*Gearbox_Rate);
+
+    //将电流限制在C620输出转矩电流内
+    if(targetTorqueI > 20.0f)
+        targetTorqueI = 20.0f;
+    if(targetTorqueI < -20.0f)
+        targetTorqueI = -20.0f;
+    
+    //将电流映射到控制电流的范围内 [-16384, 16384]
+     targetCurrent = (int16_t)((targetTorqueI / 20.0f) * Torque_Max);
 }
