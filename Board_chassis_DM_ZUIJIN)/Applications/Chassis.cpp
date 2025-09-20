@@ -51,8 +51,8 @@ void balance_Chassis::MotorInit()
   left_wheel.Init(CAN_Motor_ID_0x201,Control_Method_TORQUE);
   right_wheel.Init(CAN_Motor_ID_0x202,Control_Method_TORQUE);
   //设置电机零点位置，只在需要重新设置零点时使用
-  // lf_joint_.Save_Pos_Zero();
-  // lb_joint_.Save_Pos_Zero();
+   //lf_joint_.Save_Pos_Zero();
+   //lb_joint_.Save_Pos_Zero();
     //rf_joint_.Save_Pos_Zero();
     //rb_joint_.Save_Pos_Zero();
 
@@ -79,8 +79,10 @@ void balance_Chassis::StatusInit()
 void balance_Chassis::PidInit() 
 {
   //腿长PID，防劈叉PID，roll PID初始化
-  left_leg_len_.Init(300.0f, 0.0f,10.0f, 200.0f, 0.001f);
-  right_leg_len_.Init(300.0f, 0.0f, 10.0f,200.0f, 0.001f);
+  //left_leg_len_.Init(300.0f, 0.0f,10.0f, 200.0f, 0.001f);
+  //right_leg_len_.Init(300.0f, 0.0f, 10.0f,200.0f, 0.001f);
+	right_leg_len_.Init(500.0f, 0.0f, 100.0f,200.0f, 0.001f);
+  left_leg_len_.Init(700.0f, 0.0f,100.0f, 200.0f, 0.001f);
   anti_crash_.Init(60.0f, 1.0f, 4.0f, 10.0f, 0.001f);
 	roll_comp_.Init(600.0f,0.0f,10.0f,80.0f,0.001f);
 }
@@ -115,8 +117,8 @@ void balance_Chassis::SpeedEstInit() {
 void balance_Chassis::LegCalc() {
    left_leg_.SetBodyData(INS.Pitch , INS.MotionAccel_n[2]);
    right_leg_.SetBodyData(INS.Pitch , INS.MotionAccel_n[2]);
-   left_leg_.SetLegData(lb_joint_.GetAngle() + k_phi1_bias, lb_joint_.GetSpeed(),
-                       lf_joint_.GetAngle() + k_phi4_bias, lf_joint_.GetSpeed(),
+   left_leg_.SetLegData(lb_joint_.GetAngle() , lb_joint_.GetSpeed(),
+                       lf_joint_.GetAngle() + k_phi4_bias , lf_joint_.GetSpeed(),
                         lb_joint_.GetTor(), lf_joint_.GetTor());
   right_leg_.SetLegData(
       -rb_joint_.GetAngle() , -rb_joint_.GetSpeed(),
@@ -157,7 +159,7 @@ void balance_Chassis::LQRCalc() {
 	rotation_,INS.Gyro[2],
   left_leg_.GetTheta(), left_leg_.GetDotTheta(),
 	right_leg_.GetTheta(), right_leg_.GetDotTheta(),
-	INS.Pitch * DEGREE_2_RAD, INS.Gyro[0],
+	INS.Pitch , INS.Gyro[0],
   left_leg_.GetLegLen(), left_leg_.GetForceNormal(),
 	right_leg_.GetLegLen(),right_leg_.GetForceNormal()
 	);
@@ -173,6 +175,8 @@ void balance_Chassis::LQRCalc() {
  * @param
  */
 void balance_Chassis::TorCalc() {
+  left_leg_T_ = sbus_rx_data.torque;
+  //right_leg_T_ = sbus_rx_data.torque;
   left_leg_.SetTor(left_leg_F_, left_leg_T_);
   right_leg_.SetTor(right_leg_F_, right_leg_T_);
   left_leg_.TorCalc();
@@ -273,8 +277,8 @@ void balance_Chassis::Controller() {
    //SpeedCalc();
    //UpdateChassisStatus();
    //ChassissControl();
-    LQRCalc();
-   SynthesizeMotion();
+    //LQRCalc();
+   //SynthesizeMotion();
   // if (jump_state_ == true)
   //   Jump();
   LegLenCalc();
@@ -329,11 +333,13 @@ void balance_Chassis::StopMotor() {
   rf_joint_.SetMotorT(0.0f);
   lb_joint_.SetMotorT(0.0f);
   rb_joint_.SetMotorT(0.0f);
-	M3508_Array[0].targetTorque=0;
-	M3508_Array[1].targetTorque=0;
-	M3508_FUN.M3508_SetTor();
-	M3508_Array[0].sendCurrent=0;
-	M3508_Array[1].sendCurrent=0;
+	// M3508_Array[0].targetTorque=0;
+	// M3508_Array[1].targetTorque=0;
+	// M3508_FUN.M3508_SetTor();
+	// M3508_Array[0].sendCurrent=0;
+	// M3508_Array[1].sendCurrent=0;
+  left_wheel.Set_Target_Torque(0.0f);
+	right_wheel.Set_Target_Torque(0.0f);
 }
 
 /**

@@ -72,7 +72,7 @@ legwheel/cloud.o: ..\Applications\Cloud.cpp ..\Applications\Cloud.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS_V2\cmsis_os2.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\include\queue.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\include\task.h \
-  ..\Devices\N100\N100.h ..\Core\Inc\usart.h ..\Applications\Chassis.h \
+  ..\Devices\N100\N100.h ..\Applications\Chassis.h \
   ..\Algorithm\inc\lqr.h ..\Algorithm\inc\pid.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
@@ -88,4 +88,4 @@ legwheel/cloud.o: ..\Applications\Cloud.cpp ..\Applications\Cloud.h \
   ..\Devices\dji_motor\dji_motor.h ..\Devices\GM6020\GM6020.h \
   ..\Algorithm\inc\motor_pid.h ..\Algorithm\inc\FuzzyPID.h \
   ..\Applications\ins.h ..\Devices\Saber_C3\Saber_C3.h \
-  ..\Devices\M2006\M2006.h
+  ..\Core\Inc\usart.h ..\Devices\M2006\M2006.h

@@ -27,6 +27,7 @@ extern "C" {
 #define YAW_SPEED_MAX       4.0f    // 映射后的最大偏航角速度 (rad/s)
 #define MID_LEN             0.3f    // 腿长中间值 (m)
 #define MAX_LEN             0.1f    // 腿长最大变化量 (m)
+#define TORQUE_MAX          7.0f   // 最大扭矩 (Nm)
 // 档位判断容差（避免数据抖动导致跳变）
 #define TOLERANCE 50
 // 斜坡处理参数配置 (数值越大，响应越快；数值越小，响应越平滑)
@@ -34,7 +35,7 @@ extern "C" {
 #define RAMP_RATE_W_SPEED   3.0f    // 横移速度斜坡率 (m/s^2)
 #define RAMP_RATE_YAW       4.0f    // 偏航角速度斜坡率 (rad/s^2)
 #define RAMP_RATE_LEN       1.0f    // 腿长斜坡率 (m/s)
-
+#define RAMP_RATE_TORQUE    1.0f
 /* Public Structs ------------------------------------------------------------*/
 
 /**
@@ -49,6 +50,7 @@ typedef struct {
     float jump_flag;    // 跳跃标志 (0.0f 或 1.0f)
     float status_flag;  //设置机器人状态标志（1：自瞄模式  2：操作手状态 3：失能状态）
 	float reset_flag;   //整车复位标志
+    float torque;
 } SBUS_RevPack_t;
 
 

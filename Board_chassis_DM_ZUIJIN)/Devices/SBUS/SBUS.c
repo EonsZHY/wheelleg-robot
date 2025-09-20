@@ -20,8 +20,8 @@ typedef struct
 
 // 用于斜坡处理的内部数据结构
 typedef struct {
-    float speed_target, w_speed_target, yaw_speed_target, len_target;
-    float speed_current, w_speed_current, yaw_speed_current, len_current;
+    float speed_target, w_speed_target, yaw_speed_target, len_target, torque_target;
+    float speed_current, w_speed_current, yaw_speed_current, len_current, torque_current;
 } RampControl_t;
 
 /* Private Defines -----------------------------------------------------------*/
@@ -157,19 +157,21 @@ void SBUS_Handle(void)
             ramp_control.w_speed_target   = map_sbus_to_range(sbus_raw.ch[3], -W_SPEED_MAX, W_SPEED_MAX);
             ramp_control.len_target       = -map_sbus_to_range(sbus_raw.ch[13], -MAX_LEN, MAX_LEN) + MID_LEN;
             ramp_control.yaw_speed_target = map_sbus_to_range(sbus_raw.ch[0], -YAW_SPEED_MAX, YAW_SPEED_MAX);
+            ramp_control.torque_target = map_sbus_to_range(sbus_raw.ch[2], -TORQUE_MAX, TORQUE_MAX);
 
             // 应用斜坡处理
             ramp_control.speed_current     = Ramp_Handle(ramp_control.speed_current, ramp_control.speed_target, RAMP_RATE_SPEED, dt);
             ramp_control.w_speed_current   = Ramp_Handle(ramp_control.w_speed_current, ramp_control.w_speed_target, RAMP_RATE_W_SPEED, dt);
             ramp_control.len_current       = Ramp_Handle(ramp_control.len_current, ramp_control.len_target, RAMP_RATE_LEN, dt);
             ramp_control.yaw_speed_current = Ramp_Handle(ramp_control.yaw_speed_current, ramp_control.yaw_speed_target, RAMP_RATE_YAW, dt);
+            ramp_control.torque_current = Ramp_Handle(ramp_control.torque_current, ramp_control.torque_target, RAMP_RATE_TORQUE, dt);
 
             // 更新最终的外部数据结构
             sbus_rx_data.speed     = ramp_control.speed_current;
             sbus_rx_data.w_speed   = ramp_control.w_speed_current;
             sbus_rx_data.len       = ramp_control.len_current;
             sbus_rx_data.yaw_speed = ramp_control.yaw_speed_current;
-
+            sbus_rx_data.torque    = ramp_control.torque_current;
             // 处理挡位开关通道 
 			sbus_rx_data.jump_flag =  map_to_2levels(sbus_raw.ch[11]);
             sbus_rx_data.status_flag = map_to_3levels(sbus_raw.ch[4]);
